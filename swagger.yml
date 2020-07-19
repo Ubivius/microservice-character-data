@@ -1,0 +1,92 @@
+swagger: "2.0"
+info:
+  description: Microservice for managing character data in online games
+  title: Character Data Microservice
+  version: 1.0.0
+consumes:
+- application/json
+produces:
+- application/json
+schemes:
+- http
+paths:
+# Items
+  /items:
+    get:
+      operationId: "GetItems"
+      responses:
+        200:
+          description: List owned items
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/item"
+        default:
+          description: Generic error response
+          schema:
+            $ref: "#/definitions/error"
+  /item/{itemId}:
+    get:
+      operationId: "GetItem"
+      responses:
+        200:
+          description: Returns specified item
+          schema:
+            $ref: "#/definitions/item"
+        default:
+          description: Generic error response
+          schema:
+            $ref: "#/definitions/error"
+# Skills
+  /skills:
+  /skill/{skillId}:
+# Level
+  /level:
+  /addlevel:
+# Class
+  /class:
+# Enemy stats
+# Deaths
+definitions:
+# Items 
+  item:
+    type: object
+    required:
+      - identifier
+      - description
+    properties:
+      identifier:
+        type: integer
+      description:
+        type: string
+# Skills
+  item:
+    type: object
+    required:
+      - identifier
+    properties:
+      identifier:
+        type: integer
+      description:
+        type: string
+# Class
+  item:
+    type: object
+    required:
+      - description
+    properties:
+      identifier:
+        type: integer
+      description:
+        type: string
+#Generic error
+  error:
+    type: object
+    required:
+      - message
+    properties:
+      code:
+        type: integer
+        format: int64
+      message:
+        type: string
