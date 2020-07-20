@@ -13,7 +13,7 @@ paths:
 # Items
   /items:
     get:
-      operationId: "GetItems"
+      operationId: GetItems
       responses:
         200:
           description: List owned items
@@ -26,8 +26,14 @@ paths:
           schema:
             $ref: "#/definitions/error"
   /item/{itemId}:
+    parameters:
+      - type: integer
+        format: int64
+        name: itemId
+        in: path
+        required: true
     get:
-      operationId: "GetItem"
+      operationId: GetItem
       responses:
         200:
           description: Returns specified item
@@ -39,12 +45,57 @@ paths:
             $ref: "#/definitions/error"
 # Skills
   /skills:
+    get:
+      operationId: GetSkills
+      responses:
+        200:
+          description: Returns list of skills
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/skill"
+        default:
+          description: Generic error response
+          schema:
+            $ref: "#/definitions/error"
   /skill/{skillId}:
-# Level
-  /level:
-  /addlevel:
+    parameters:
+      - type: integer
+        format: int64
+        name: skillId
+        in: path
+        required: true
+    get:
+      operationId: GetSkill
+      responses:
+        200:
+          description: Returns specified skill
+          schema:
+            $ref: "#/definitions/skill"
+        default:
+          description: Generic error response
+          schema:
+            $ref: "#/definitions/error"
+    # Add post to add skills?         
 # Class
-  /class:
+  /class/{playerId}:
+    parameters:
+      - type: integer
+        format: int64
+        name: playerId
+        in: path
+        required: true
+    get:
+      operationId: GetClass
+      responses:
+        200:
+          description: Returns players class
+          schema:
+            $ref: "#/definitions/class"
+        default:
+          description: Generic error response
+          schema:
+            $ref: "#/definitions/error"
 # Enemy stats
 # Deaths
 definitions:
@@ -60,7 +111,7 @@ definitions:
       description:
         type: string
 # Skills
-  item:
+  skill:
     type: object
     required:
       - identifier
@@ -70,7 +121,7 @@ definitions:
       description:
         type: string
 # Class
-  item:
+  class:
     type: object
     required:
       - description
@@ -79,6 +130,10 @@ definitions:
         type: integer
       description:
         type: string
+      abilities:
+        type: array
+        items:
+          $ref: "#/definitions/skill"
 #Generic error
   error:
     type: object
