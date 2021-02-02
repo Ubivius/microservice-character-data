@@ -3,24 +3,24 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/Ubivius/microservice-template/data"
+	"github.com/Ubivius/microservice-character-data/data"
 )
 
-// DELETE /products/{id}
-// Deletes a product with specified id from the database
-func (productHandler *ProductsHandler) Delete(responseWriter http.ResponseWriter, request *http.Request) {
-	id := getProductId(request)
-	productHandler.logger.Println("Handle DELETE product", id)
+// DELETE /characters/{id}
+// Deletes a character with specified id from the database
+func (characterHandler *CharactersHandler) Delete(responseWriter http.ResponseWriter, request *http.Request) {
+	id := getCharacterId(request)
+	characterHandler.logger.Println("Handle DELETE character", id)
 
-	err := data.DeleteProduct(id)
-	if err == data.ErrorProductNotFound {
-		productHandler.logger.Println("[ERROR] deleting, id does not exist")
-		http.Error(responseWriter, "Product not found", http.StatusNotFound)
+	err := data.DeleteCharacter(id)
+	if err == data.ErrorCharacterNotFound {
+		characterHandler.logger.Println("[ERROR] deleting, id does not exist")
+		http.Error(responseWriter, "Character not found", http.StatusNotFound)
 		return
 	}
 
 	if err != nil {
-		productHandler.logger.Println("[ERROR] deleting product", err)
+		characterHandler.logger.Println("[ERROR] deleting character", err)
 		http.Error(responseWriter, "Erro deleting poduct", http.StatusInternalServerError)
 		return
 	}
