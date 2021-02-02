@@ -5,35 +5,35 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Ubivius/microservice-template/data"
+	"github.com/Ubivius/microservice-character-data/data"
 )
 
 // Errors should be templated in the future.
-// A good starting reference can be found here : https://github.com/nicholasjackson/building-microservices-youtube/blob/episode_7/product-api/handlers/middleware.go
+// A good starting reference can be found here : https://github.com/nicholasjackson/building-microservices-youtube/blob/episode_7/character-api/handlers/middleware.go
 // We want our validation errors to have a standard format
 
-// Json Product Validation
-func (productHandler *ProductsHandler) MiddlewareProductValidation(next http.Handler) http.Handler {
+// Json Character Validation
+func (characterHandler *CharactersHandler) MiddlewareCharacterValidation(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
-		product := &data.Product{}
+		character := &data.Character{}
 
-		err := data.FromJSON(product, request.Body)
+		err := data.FromJSON(character, request.Body)
 		if err != nil {
-			productHandler.logger.Println("[ERROR] deserializing product", err)
-			http.Error(responseWriter, "Error reading product", http.StatusBadRequest)
+			characterHandler.logger.Println("[ERROR] deserializing character", err)
+			http.Error(responseWriter, "Error reading character", http.StatusBadRequest)
 			return
 		}
 
-		// validate the product
-		err = product.ValidateProduct()
+		// validate the character
+		err = character.ValidateCharacter()
 		if err != nil {
-			productHandler.logger.Println("[ERROR] validating product", err)
-			http.Error(responseWriter, fmt.Sprintf("Error validating product: %s", err), http.StatusBadRequest)
+			characterHandler.logger.Println("[ERROR] validating character", err)
+			http.Error(responseWriter, fmt.Sprintf("Error validating character: %s", err), http.StatusBadRequest)
 			return
 		}
 
-		// Add the product to the context
-		context := context.WithValue(request.Context(), KeyProduct{}, product)
+		// Add the character to the context
+		context := context.WithValue(request.Context(), KeyCharacter{}, character)
 		newRequest := request.WithContext(context)
 
 		// Call the next handler, which can be another middleware or the final handler

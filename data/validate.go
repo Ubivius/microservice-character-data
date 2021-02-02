@@ -10,14 +10,14 @@ import (
 // The struct to validate should be passed as an interface in the future and the errors should be handled as individual error strings
 // For further information see :
 // Validator library : https://github.com/go-playground/validator
-// Nic Jackson episode : https://github.com/nicholasjackson/building-microservices-youtube/blob/episode_7/product-api/data/validation.go
+// Nic Jackson episode : https://github.com/nicholasjackson/building-microservices-youtube/blob/episode_7/character-api/data/validation.go
 
-// ValidateProduct a product with json validation and customer SKU validator
-func (product *Product) ValidateProduct() error {
+// ValidateCharacter a character with json validation and customer SKU validator
+func (character *Character) ValidateCharacter() error {
 	validate := validator.New()
 	validate.RegisterValidation("sku", validateSKU)
 
-	return validate.Struct(product)
+	return validate.Struct(character)
 }
 
 // Custom SKU validator
