@@ -12,8 +12,8 @@ var ErrorCharacterNotFound = fmt.Errorf("Character not found")
 // Formatting done with json tags to the right. "-" : don't include when encoding to json
 type Character struct {
 	ID        int    `json:"id"`
-	UserID    int    `json:"userid"`
-	Name      string `json:"name" validate:"required"`
+	UserID    int    `json:"userid" validate:"required"`
+	Name      string `json:"name" validate:"required,name"`
 	CreatedOn string `json:"-"`
 	UpdatedOn string `json:"-"`
 	DeletedOn string `json:"-"`
@@ -23,7 +23,7 @@ type Character struct {
 type Characters []*Character
 
 // All of these functions will become database calls in the future
-// GETTING PRODUCTS
+// GETTING CHARACTERS
 
 // Returns the list of characters
 func GetCharacters() Characters {
@@ -39,7 +39,7 @@ func GetCharacterById(id int) (*Character, error) {
 	return characterList[index], nil
 }
 
-// UPDATING PRODUCTS
+// UPDATING CHARACTERS
 
 // need to remove id int from parameters when character handler is updated
 func UpdateCharacter(character *Character) error {
@@ -51,13 +51,13 @@ func UpdateCharacter(character *Character) error {
 	return nil
 }
 
-// ADD A PRODUCT
+// ADD A CHARACTER
 func AddCharacter(character *Character) {
 	character.ID = getNextId()
 	characterList = append(characterList, character)
 }
 
-// DELETING A PRODUCT
+// DELETING A CHARACTER
 func DeleteCharacter(id int) error {
 	index := findIndexByCharacterID(id)
 	if index == -1 {
@@ -98,14 +98,21 @@ var characterList = []*Character{
 	{
 		ID:        1,
 		UserID:    1,
-		Name:      "Sword",
+		Name:      "ArcticWalrus",
 		CreatedOn: time.Now().UTC().String(),
 		UpdatedOn: time.Now().UTC().String(),
 	},
 	{
 		ID:        2,
-		UserID:    1,
-		Name:      "Boots",
+		UserID:    2,
+		Name:      "WinterSword",
+		CreatedOn: time.Now().UTC().String(),
+		UpdatedOn: time.Now().UTC().String(),
+	},
+	{
+		ID:        3,
+		UserID:    2,
+		Name:      "ShortChangeDev",
 		CreatedOn: time.Now().UTC().String(),
 		UpdatedOn: time.Now().UTC().String(),
 	},
