@@ -14,7 +14,7 @@ import (
 
 func main() {
 	// Logger
-	logger := log.New(os.Stdout, "Template", log.LstdFlags)
+	logger := log.New(os.Stdout, "Characters ", log.LstdFlags)
 
 	// Creating handlers
 	characterHandler := handlers.NewCharactersHandler(logger)

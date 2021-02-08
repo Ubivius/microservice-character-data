@@ -11,6 +11,6 @@ import (
 func (characterHandler *CharactersHandler) AddCharacter(responseWriter http.ResponseWriter, request *http.Request) {
 	characterHandler.logger.Println("Handle POST Character")
 	character := request.Context().Value(KeyCharacter{}).(*data.Character)
-
+	characterHandler.logger.Println(character)
 	data.AddCharacter(character)
 }
