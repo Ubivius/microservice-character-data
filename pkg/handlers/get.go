@@ -21,12 +21,12 @@ func (characterHandler *CharactersHandler) GetCharacters(responseWriter http.Res
 
 // GET /characters/{id}
 // Returns a single character from the database
-func (characterHandler *CharactersHandler) GetCharacterById(responseWriter http.ResponseWriter, request *http.Request) {
+func (characterHandler *CharactersHandler) GetCharacterByID(responseWriter http.ResponseWriter, request *http.Request) {
 	id := getCharacterId(request)
 
 	characterHandler.logger.Println("[DEBUG] getting id", id)
 
-	character, err := data.GetCharactersByID(id)
+	character, err := data.GetCharacterByID(id)
 	switch err {
 	case nil:
 		err = json.NewEncoder(responseWriter).Encode(character)

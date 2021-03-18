@@ -31,9 +31,9 @@ func GetCharacters() Characters {
 }
 
 // Returns a single character with the given id
-func GetCharacterById(id int) (*Character, error) {
+func GetCharacterByID(id int) (*Character, error) {
 	index := findIndexByCharacterID(id)
-	if id == -1 {
+	if index == -1 {
 		return nil, ErrorCharacterNotFound
 	}
 	return characterList[index], nil
@@ -54,6 +54,10 @@ func UpdateCharacter(character *Character) error {
 // ADD A CHARACTER
 func AddCharacter(character *Character) {
 	character.ID = getNextId()
+
+	// TODO: Verify that the user exist
+	// TODO: Verify that the character name isn't already used
+
 	characterList = append(characterList, character)
 }
 
