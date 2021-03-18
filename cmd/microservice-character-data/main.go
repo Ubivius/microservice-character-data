@@ -8,8 +8,8 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/Ubivius/microservice-character-date/pkg/handlers"
-	"github.com/Ubivius/microservice-character-date/pkg/router"
+	"github.com/Ubivius/microservice-character-data/pkg/handlers"
+	"github.com/Ubivius/microservice-character-data/pkg/router"
 	"go.opentelemetry.io/otel/exporters/stdout"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )

@@ -16,7 +16,7 @@ func New(charactersHandler *handlers.CharactersHandler, logger *log.Logger) *mux
 	// Get Router
 	getRouter := router.Methods(http.MethodGet).Subrouter()
 	getRouter.HandleFunc("/characters", charactersHandler.GetCharacters)
-	getRouter.HandleFunc("/characters/{id:[0-9]+}", charactersHandler.GetCharacterById)
+	getRouter.HandleFunc("/characters/{id:[0-9]+}", charactersHandler.GetCharacterByID)
 
 	// Put router
 	putRouter := router.Methods(http.MethodPut).Subrouter()
