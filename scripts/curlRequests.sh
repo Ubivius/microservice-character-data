@@ -2,8 +2,8 @@
 
 # A collection of simple curl requests that can be used to manually test endpoints before and while writing automated tests
 
-curl localhost:9090/products
-curl localhost:9090/products/1
-curl localhost:9090/products -XPOST -d '{"name":"addName", "price":1.00, "sku":"abc-abc-abcd"}'
-curl localhost:9090/products -XPUT -d '{"id":2, "name":"newName", "price":1.00, "sku":"abc-abc-abcd"}'
-curl localhost:9090/products/1 -XDELETE
+curl localhost:9090/characters
+curl localhost:9090/characters/1
+curl localhost:9090/characters -XPOST -d '{"name":"addName", "userid":1}'
+curl localhost:9090/characters -XPUT -d '{"id":2, "name":"newName", "userid":1}'
+curl localhost:9090/characters/1 -XDELETE
