@@ -21,7 +21,7 @@ func (characterHandler *CharactersHandler) Delete(responseWriter http.ResponseWr
 
 	if err != nil {
 		characterHandler.logger.Println("[ERROR] deleting character", err)
-		http.Error(responseWriter, "Erro deleting character", http.StatusInternalServerError)
+		http.Error(responseWriter, "Error deleting character", http.StatusInternalServerError)
 		return
 	}
 

@@ -12,6 +12,19 @@ func (characterHandler *CharactersHandler) AddCharacter(responseWriter http.Resp
 	characterHandler.logger.Println("Handle POST Character")
 	character := request.Context().Value(KeyCharacter{}).(*data.Character)
 
-	data.AddCharacter(character)
+	err := data.AddCharacter(character)
+
+	if err == data.ErrorCharacterNameAlreadyExist {
+		characterHandler.logger.Println("[ERROR] adding, name already exist")
+		http.Error(responseWriter, "Character name already exist", http.StatusConflict)
+		return
+	}
+
+	if err != nil {
+		characterHandler.logger.Println("[ERROR] adding character", err)
+		http.Error(responseWriter, "Error adding character", http.StatusInternalServerError)
+		return
+	}
+
 	responseWriter.WriteHeader(http.StatusNoContent)
 }

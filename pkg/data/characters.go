@@ -7,6 +7,7 @@ import (
 
 // Character specific errors
 var ErrorCharacterNotFound = fmt.Errorf("Character not found")
+var ErrorCharacterNameAlreadyExist = fmt.Errorf("Character name is already used")
 
 // Character defines the structure for an API character.
 // Formatting done with json tags to the right. "-" : don't include when encoding to json
@@ -32,7 +33,7 @@ func GetCharacters() Characters {
 
 // Returns a single character with the given id
 func GetCharacterByID(id int) (*Character, error) {
-	index := findIndexByCharacterID(id)
+	index := FindIndexByCharacterID(id)
 	if index == -1 {
 		return nil, ErrorCharacterNotFound
 	}
@@ -41,9 +42,8 @@ func GetCharacterByID(id int) (*Character, error) {
 
 // UPDATING CHARACTERS
 
-// need to remove id int from parameters when character handler is updated
 func UpdateCharacter(character *Character) error {
-	index := findIndexByCharacterID(character.ID)
+	index := FindIndexByCharacterID(character.ID)
 	if index == -1 {
 		return ErrorCharacterNotFound
 	}
@@ -52,18 +52,21 @@ func UpdateCharacter(character *Character) error {
 }
 
 // ADD A CHARACTER
-func AddCharacter(character *Character) {
-	character.ID = getNextId()
+func AddCharacter(character *Character) error {
+	err := CharacterNameExist(character.Name)
+	if err != nil {
+		return err
+	}
 
 	// TODO: Verify that the user exist
-	// TODO: Verify that the character name isn't already used
-
+	character.ID = getNextId()
 	characterList = append(characterList, character)
+	return nil
 }
 
 // DELETING A CHARACTER
 func DeleteCharacter(id int) error {
-	index := findIndexByCharacterID(id)
+	index := FindIndexByCharacterID(id)
 	if index == -1 {
 		return ErrorCharacterNotFound
 	}
@@ -76,13 +79,22 @@ func DeleteCharacter(id int) error {
 
 // Returns the index of a character in the database
 // Returns -1 when no character is found
-func findIndexByCharacterID(id int) int {
+func FindIndexByCharacterID(id int) int {
 	for index, character := range characterList {
 		if character.ID == id {
 			return index
 		}
 	}
 	return -1
+}
+
+func CharacterNameExist(name string) error {
+	for _, character := range characterList {
+		if character.Name == name {
+			return ErrorCharacterNameAlreadyExist
+		}
+	}
+	return nil
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -116,7 +128,7 @@ var characterList = []*Character{
 	{
 		ID:        3,
 		UserID:    2,
-		Name:      "ShortChangeDev",
+		Name:      "ExistingCharacterName",
 		CreatedOn: time.Now().UTC().String(),
 		UpdatedOn: time.Now().UTC().String(),
 	},

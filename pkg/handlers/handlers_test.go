@@ -119,6 +119,28 @@ func TestAddCharacter(t *testing.T) {
 	}
 }
 
+func TestAddExistingCharacter(t *testing.T) {
+	// Creating request body
+	body := &data.Character{
+		Name:   "ExistingCharacterName",
+		UserID: 1,
+	}
+
+	request := httptest.NewRequest(http.MethodPost, "/characters", nil)
+	response := httptest.NewRecorder()
+
+	// Add the body to the context since we arent passing through middleware
+	ctx := context.WithValue(request.Context(), KeyCharacter{}, body)
+	request = request.WithContext(ctx)
+
+	characterHandler := NewCharactersHandler(NewTestLogger())
+	characterHandler.AddCharacter(response, request)
+
+	if response.Code != http.StatusConflict {
+		t.Errorf("Expected status code %d, but got %d", http.StatusConflict, response.Code)
+	}
+}
+
 func TestUpdateCharacter(t *testing.T) {
 	// Creating request body
 	body := &data.Character{
