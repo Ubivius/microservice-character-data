@@ -14,7 +14,7 @@ import (
 func TestValidationMiddlewareWithValidBody(t *testing.T) {
 	// Creating request body
 	body := &data.Character{
-		Name:   "addName",
+		Name:   "addname",
 		UserID: 1,
 	}
 	bodyBytes, _ := json.Marshal(body)
@@ -71,7 +71,7 @@ func TestValidationMiddlewareWithNoName(t *testing.T) {
 func TestValidationMiddlewareWithNoUserID(t *testing.T) {
 	// Creating request body
 	body := &data.Character{
-		Name: "randomName",
+		Name: "randomname",
 	}
 	bodyBytes, err := json.Marshal(body)
 	if err != nil {
