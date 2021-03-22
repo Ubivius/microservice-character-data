@@ -1,12 +1,12 @@
 apiVersion: v2
-name: microservice-template
+name: microservice-character-data
 type: application
 version: 0.0.0
 appVersion: 0.0.0
-description: "microservice-template: Template for microservices."
+description: "microservice-character-data: Character-Data for microservices."
 icon: https://avatars.githubusercontent.com/u/64909001
 sources:
-  - https://github.com/Ubivius/microservice-template
+  - https://github.com/Ubivius/microservice-character-data
 maintainers:
   - name: Ubivius
     email: ubivius@gmail.com

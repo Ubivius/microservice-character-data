@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: ubiviushub/microservice-template
+  repository: ubiviushub/microservice-character-data
   tag: 0.0.0
   pullPolicy: Always
 
@@ -28,7 +28,7 @@ serviceAccount:
   # Annotations to add to the service account
   annotations: {}
   # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
+  # If not set and create is true, a name is generated using the fullname character-data
   name:
 
 podSecurityContext: {}
