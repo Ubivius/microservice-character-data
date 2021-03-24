@@ -10,7 +10,6 @@ var ErrorCharacterNotFound = fmt.Errorf("Character not found")
 var ErrorCharacterNameAlreadyExist = fmt.Errorf("Character name is already used")
 
 // Character defines the structure for an API character.
-// Formatting done with json tags to the right. "-" : don't include when encoding to json
 type Character struct {
 	ID        int    `json:"id"`
 	UserID    int    `json:"userid" validate:"required"`
