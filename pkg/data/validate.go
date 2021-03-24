@@ -16,6 +16,7 @@ func (character *Character) ValidateCharacter() error {
 }
 
 func validateName(fieldLevel validator.FieldLevel) bool {
+	// TODO: Chose what kind of name are accepted ( Special characters? Spaces? Numbers? Etc.)
 	re := regexp.MustCompile(`[a-z0-9-]+`)
 	matches := re.FindAllString(fieldLevel.Field().String(), -1)
 

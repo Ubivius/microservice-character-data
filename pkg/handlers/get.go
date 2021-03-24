@@ -12,7 +12,7 @@ import (
 func (characterHandler *CharactersHandler) GetCharacters(responseWriter http.ResponseWriter, request *http.Request) {
 	characterHandler.logger.Println("Handle GET characters")
 	characterList := data.GetCharacters()
-	err := data.ToJSON(characterList, responseWriter)
+	err := json.NewEncoder(responseWriter).Encode(characterList)
 	if err != nil {
 		characterHandler.logger.Println("[ERROR] serializing character", err)
 		http.Error(responseWriter, "Unable to marshal json", http.StatusInternalServerError)
