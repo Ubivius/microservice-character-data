@@ -71,8 +71,7 @@ func DeleteCharacter(id int) error {
 		return ErrorCharacterNotFound
 	}
 
-	// This should not work, probably needs ':' after index+1. To test
-	characterList = append(characterList[:index], characterList[index+1])
+	characterList = append(characterList[:index], characterList[index+1:]...)
 
 	return nil
 }
