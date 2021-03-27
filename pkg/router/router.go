@@ -10,7 +10,6 @@ import (
 
 // Mux route handling with gorilla/mux
 func New(charactersHandler *handlers.CharactersHandler, logger *log.Logger) *mux.Router {
-	// Mux route handling with gorilla/mux
 	router := mux.NewRouter()
 
 	// Get Router
