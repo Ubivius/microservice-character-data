@@ -142,6 +142,32 @@ func TestUpdateCharacter(t *testing.T) {
 	}
 }
 
+func TestUpdateNonExistingCharacter(t *testing.T) {
+	// Creating request body
+	body := &data.Character{
+		ID:     10,
+		Name:   "newName",
+		UserID: 1,
+	}
+
+	request := httptest.NewRequest(http.MethodPut, "/characters", nil)
+	response := httptest.NewRecorder()
+
+	// Add the body to the context since we arent passing through middleware
+	ctx := context.WithValue(request.Context(), KeyCharacter{}, body)
+	request = request.WithContext(ctx)
+
+	characterHandler := NewCharactersHandler(NewTestLogger())
+	characterHandler.UpdateCharacters(response, request)
+
+	if response.Code != http.StatusNotFound {
+		t.Errorf("Expected status code %d but got : %d", http.StatusNotFound, response.Code)
+	}
+	if !strings.Contains(response.Body.String(), "Character not found") {
+		t.Error("Expected response : Character not found")
+	}
+}
+
 func TestDeleteExistingCharacter(t *testing.T) {
 	request := httptest.NewRequest(http.MethodDelete, "/characters/1", nil)
 	response := httptest.NewRecorder()
