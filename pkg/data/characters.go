@@ -7,7 +7,6 @@ import (
 
 // Character specific errors
 var ErrorCharacterNotFound = fmt.Errorf("Character not found")
-var ErrorCharacterNameAlreadyExist = fmt.Errorf("Character name is already used")
 
 // Character defines the structure for an API character.
 type Character struct {
@@ -52,11 +51,6 @@ func UpdateCharacter(character *Character) error {
 
 // ADD A CHARACTER
 func AddCharacter(character *Character) error {
-	err := CharacterNameExist(character.Name)
-	if err != nil {
-		return err
-	}
-
 	// TODO: Verify that the user exist
 	character.ID = getNextId()
 	characterList = append(characterList, character)
@@ -84,15 +78,6 @@ func FindIndexByCharacterID(id int) int {
 		}
 	}
 	return -1
-}
-
-func CharacterNameExist(name string) error {
-	for _, character := range characterList {
-		if character.Name == name {
-			return ErrorCharacterNameAlreadyExist
-		}
-	}
-	return nil
 }
 
 //////////////////////////////////////////////////////////////////////////////
