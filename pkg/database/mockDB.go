@@ -1,7 +1,6 @@
 package database
 
 import (
-	"log"
 	"time"
 
 	"github.com/Ubivius/microservice-character-data/pkg/data"
@@ -12,6 +11,7 @@ type MockCharacters struct {
 }
 
 func NewMockCharacters() CharacterDB {
+	log.Info("Connecting to mock database")
 	return &MockCharacters{}
 }
 
@@ -20,7 +20,7 @@ func (mp *MockCharacters) Connect() error {
 }
 
 func (mp *MockCharacters) CloseDB() {
-	log.Println("Mocked DB connection closed")
+	log.Info("Mocked DB connection closed")
 }
 
 func (mp *MockCharacters) GetCharacters() data.Characters {

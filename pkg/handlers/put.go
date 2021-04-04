@@ -8,7 +8,7 @@ import (
 
 func (characterHandler *CharactersHandler) UpdateCharacters(responseWriter http.ResponseWriter, request *http.Request) {
 	character := request.Context().Value(KeyCharacter{}).(*data.Character)
-	characterHandler.logger.Println("Handle PUT character", character.ID)
+	log.Info("UpdateCharacters request", "id", character.ID)
 
 	// Update character
 	err := characterHandler.db.UpdateCharacter(character)
@@ -17,11 +17,11 @@ func (characterHandler *CharactersHandler) UpdateCharacters(responseWriter http.
 		responseWriter.WriteHeader(http.StatusNoContent)
 		return
 	case data.ErrorCharacterNotFound:
-		characterHandler.logger.Println("[ERROR} character not found", err)
+		log.Error(err, "Character not found")
 		http.Error(responseWriter, "Character not found", http.StatusNotFound)
 		return
 	default:
-		characterHandler.logger.Println("[ERROR] updating character", err)
+		log.Error(err, "Error updating character")
 		http.Error(responseWriter, "Error updating character", http.StatusInternalServerError)
 		return
 	}

@@ -2,7 +2,7 @@ package database
 
 import (
 	"context"
-	"log"
+	"os"
 	"time"
 
 	"github.com/Ubivius/microservice-character-data/pkg/data"
@@ -15,15 +15,15 @@ import (
 type MongoCharacters struct {
 	client     *mongo.Client
 	collection *mongo.Collection
-	logger     *log.Logger
 }
 
-func NewMongoCharacters(l *log.Logger) CharacterDB {
-	mp := &MongoCharacters{logger: l}
+func NewMongoCharacters() CharacterDB {
+	mp := &MongoCharacters{}
 	err := mp.Connect()
 	// If connect fails, kill the program
 	if err != nil {
-		mp.logger.Fatal(err)
+		log.Error(err, "MongoDB setup failed")
+		os.Exit(1)
 	}
 	return mp
 }
@@ -35,16 +35,18 @@ func (mp *MongoCharacters) Connect() error {
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil || client == nil {
-		mp.logger.Fatalln("Failed to connect to database. Shutting down service")
+		log.Error(err, "Failed to connect to database. Shutting down service")
+		os.Exit(1)
 	}
 
 	// Ping DB
 	err = client.Ping(context.TODO(), nil)
 	if err != nil {
-		mp.logger.Fatal(err)
+		log.Error(err, "Failed to ping database. Shutting down service")
+		os.Exit(1)
 	}
 
-	log.Println("Connection to MongoDB established")
+	log.Info("Connection to MongoDB established")
 
 	collection := client.Database("ubivius").Collection("characters")
 
@@ -57,9 +59,7 @@ func (mp *MongoCharacters) Connect() error {
 func (mp *MongoCharacters) CloseDB() {
 	err := mp.client.Disconnect(context.TODO())
 	if err != nil {
-		mp.logger.Println(err)
-	} else {
-		log.Println("Connection to MongoDB closed.")
+		log.Error(err, "Error while disconnecting from database")
 	}
 }
 
@@ -70,7 +70,7 @@ func (mp *MongoCharacters) GetCharacters() data.Characters {
 	// Find returns a cursor that must be iterated through
 	cursor, err := mp.collection.Find(context.TODO(), bson.D{})
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err, "Error getting characters from database")
 	}
 
 	// Iterating through cursor
@@ -78,13 +78,13 @@ func (mp *MongoCharacters) GetCharacters() data.Characters {
 		var result data.Character
 		err := cursor.Decode(&result)
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err, "Error decoding character from database")
 		}
 		characters = append(characters, &result)
 	}
 
 	if err := cursor.Err(); err != nil {
-		log.Fatal(err)
+		log.Error(err, "Error in cursor after iteration")
 	}
 
 	// Close the cursor once finished
@@ -117,7 +117,7 @@ func (mp *MongoCharacters) GetCharactersByUserID(user_id string) (data.Character
 	// Find returns a cursor that must be iterated through
 	cursor, err := mp.collection.Find(context.TODO(), filter)
 	if err != nil {
-		log.Println(err, "Error getting characters by userID from database")
+		log.Error(err, "Error getting characters by userID from database")
 	}
 
 	// Iterating through cursor
@@ -125,13 +125,13 @@ func (mp *MongoCharacters) GetCharactersByUserID(user_id string) (data.Character
 		var result data.Character
 		err := cursor.Decode(&result)
 		if err != nil {
-			log.Println(err, "Error decoding characters from database")
+			log.Error(err, "Error decoding characters from database")
 		}
 		characters = append(characters, &result)
 	}
 
 	if err := cursor.Err(); err != nil {
-		log.Println(err, "Error in cursor after iteration")
+		log.Error(err, "Error in cursor after iteration")
 	}
 
 	// Close the cursor once finished
@@ -153,7 +153,7 @@ func (mp *MongoCharacters) UpdateCharacter(character *data.Character) error {
 	// Update a single item in the database with the values in update that match the filter
 	_, err := mp.collection.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
-		log.Println(err)
+		log.Error(err, "Error updating character.")
 	}
 
 	return err
@@ -171,7 +171,7 @@ func (mp *MongoCharacters) AddCharacter(character *data.Character) error {
 		return err
 	}
 
-	log.Println("Inserting a document: ", insertResult.InsertedID)
+	log.Info("Inserting character", "Inserted ID", insertResult.InsertedID)
 	return nil
 }
 
@@ -182,9 +182,9 @@ func (mp *MongoCharacters) DeleteCharacter(id string) error {
 	// Delete a single item matching the filter
 	result, err := mp.collection.DeleteOne(context.TODO(), filter)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err, "Error deleting character")
 	}
 
-	log.Printf("Deleted %v documents in the characters collection\n", result.DeletedCount)
+	log.Info("Deleted documents in achievements collection", "delete_count", result.DeletedCount)
 	return nil
 }

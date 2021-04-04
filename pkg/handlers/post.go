@@ -9,7 +9,7 @@ import (
 // /POST /characters
 // Creates a new character
 func (characterHandler *CharactersHandler) AddCharacter(responseWriter http.ResponseWriter, request *http.Request) {
-	characterHandler.logger.Println("Handle POST Character")
+	log.Info("AddCharacter request")
 	character := request.Context().Value(KeyCharacter{}).(*data.Character)
 
 	err := characterHandler.db.AddCharacter(character)
@@ -18,7 +18,7 @@ func (characterHandler *CharactersHandler) AddCharacter(responseWriter http.Resp
 		responseWriter.WriteHeader(http.StatusNoContent)
 		return
 	default:
-		characterHandler.logger.Println("[ERROR] adding character", err)
+		log.Error(err, "Error adding character")
 		http.Error(responseWriter, "Error adding character", http.StatusInternalServerError)
 		return
 	}

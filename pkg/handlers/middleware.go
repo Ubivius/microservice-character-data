@@ -16,7 +16,7 @@ func (characterHandler *CharactersHandler) MiddlewareCharacterValidation(next ht
 
 		err := json.NewDecoder(request.Body).Decode(character)
 		if err != nil {
-			characterHandler.logger.Println("[ERROR] deserializing character", err)
+			log.Error(err, "Error deserializing character")
 			http.Error(responseWriter, "Error reading character", http.StatusBadRequest)
 			return
 		}
@@ -24,7 +24,7 @@ func (characterHandler *CharactersHandler) MiddlewareCharacterValidation(next ht
 		// validate the character
 		err = character.ValidateCharacter()
 		if err != nil {
-			characterHandler.logger.Println("[ERROR] validating character", err)
+			log.Error(err, "Error validating character")
 			http.Error(responseWriter, fmt.Sprintf("Error validating character: %s", err), http.StatusBadRequest)
 			return
 		}

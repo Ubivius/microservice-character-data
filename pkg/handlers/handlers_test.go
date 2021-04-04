@@ -2,10 +2,8 @@ package handlers
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
 
@@ -15,10 +13,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func NewTestLogger() *log.Logger {
-	return log.New(os.Stdout, "Tests", log.LstdFlags)
-}
-
 func newCharacterDB() database.CharacterDB {
 	return database.NewMockCharacters()
 }
@@ -27,13 +21,13 @@ func TestGetCharacters(t *testing.T) {
 	request := httptest.NewRequest(http.MethodGet, "/characters", nil)
 	response := httptest.NewRecorder()
 
-	characterHandler := NewCharactersHandler(NewTestLogger(), newCharacterDB())
+	characterHandler := NewCharactersHandler(newCharacterDB())
 	characterHandler.GetCharacters(response, request)
 
 	if response.Code != 200 {
 		t.Errorf("Expected status code 200 but got : %d", response.Code)
 	}
-	log.Println(response.Body.String())
+
 	if !strings.Contains(response.Body.String(), "a2181017-5c53-422b-b6bc-036b27c04fc8") || !strings.Contains(response.Body.String(), "e2382ea2-b5fa-4506-aa9d-d338aa52af44") {
 		t.Error("Missing elements from expected results")
 	}
@@ -43,7 +37,7 @@ func TestGetExistingCharacterByID(t *testing.T) {
 	request := httptest.NewRequest(http.MethodGet, "/characters/a2181017-5c53-422b-b6bc-036b27c04fc8", nil)
 	response := httptest.NewRecorder()
 
-	characterHandler := NewCharactersHandler(NewTestLogger(), newCharacterDB())
+	characterHandler := NewCharactersHandler(newCharacterDB())
 
 	// Mocking gorilla/mux vars
 	vars := map[string]string{
@@ -65,7 +59,7 @@ func TestGetNonExistingCharacterByID(t *testing.T) {
 	request := httptest.NewRequest(http.MethodGet, "/characters/4", nil)
 	response := httptest.NewRecorder()
 
-	characterHandler := NewCharactersHandler(NewTestLogger(), newCharacterDB())
+	characterHandler := NewCharactersHandler(newCharacterDB())
 
 	// Mocking gorilla/mux vars
 	vars := map[string]string{
@@ -87,7 +81,7 @@ func TestGetExistingCharactersByUserID(t *testing.T) {
 	request := httptest.NewRequest(http.MethodGet, "/characters/user/a2181017-5c53-422b-b6bc-036b27c04fc8", nil)
 	response := httptest.NewRecorder()
 
-	characterHandler := NewCharactersHandler(NewTestLogger(), newCharacterDB())
+	characterHandler := NewCharactersHandler(newCharacterDB())
 
 	// Mocking gorilla/mux vars
 	vars := map[string]string{
@@ -109,7 +103,7 @@ func TestGetNonExistingCharactersByUserID(t *testing.T) {
 	request := httptest.NewRequest(http.MethodGet, "/characters/user/4", nil)
 	response := httptest.NewRecorder()
 
-	characterHandler := NewCharactersHandler(NewTestLogger(), newCharacterDB())
+	characterHandler := NewCharactersHandler(newCharacterDB())
 
 	// Mocking gorilla/mux vars
 	vars := map[string]string{
@@ -131,7 +125,7 @@ func TestDeleteNonExistantCharacter(t *testing.T) {
 	request := httptest.NewRequest(http.MethodDelete, "/characters/4", nil)
 	response := httptest.NewRecorder()
 
-	characterHandler := NewCharactersHandler(NewTestLogger(), newCharacterDB())
+	characterHandler := NewCharactersHandler(newCharacterDB())
 
 	// Mocking gorilla/mux vars
 	vars := map[string]string{
@@ -162,7 +156,7 @@ func TestAddCharacter(t *testing.T) {
 	ctx := context.WithValue(request.Context(), KeyCharacter{}, body)
 	request = request.WithContext(ctx)
 
-	characterHandler := NewCharactersHandler(NewTestLogger(), newCharacterDB())
+	characterHandler := NewCharactersHandler(newCharacterDB())
 	characterHandler.AddCharacter(response, request)
 
 	if response.Code != http.StatusNoContent {
@@ -185,7 +179,7 @@ func TestUpdateCharacter(t *testing.T) {
 	ctx := context.WithValue(request.Context(), KeyCharacter{}, body)
 	request = request.WithContext(ctx)
 
-	characterHandler := NewCharactersHandler(NewTestLogger(), newCharacterDB())
+	characterHandler := NewCharactersHandler(newCharacterDB())
 	characterHandler.UpdateCharacters(response, request)
 
 	if response.Code != http.StatusNoContent {
@@ -208,7 +202,7 @@ func TestUpdateNonExistingCharacter(t *testing.T) {
 	ctx := context.WithValue(request.Context(), KeyCharacter{}, body)
 	request = request.WithContext(ctx)
 
-	characterHandler := NewCharactersHandler(NewTestLogger(), newCharacterDB())
+	characterHandler := NewCharactersHandler(newCharacterDB())
 	characterHandler.UpdateCharacters(response, request)
 
 	if response.Code != http.StatusNotFound {
@@ -223,7 +217,7 @@ func TestDeleteExistingCharacter(t *testing.T) {
 	request := httptest.NewRequest(http.MethodDelete, "/characters/a2181017-5c53-422b-b6bc-036b27c04fc8", nil)
 	response := httptest.NewRecorder()
 
-	characterHandler := NewCharactersHandler(NewTestLogger(), newCharacterDB())
+	characterHandler := NewCharactersHandler(newCharacterDB())
 
 	// Mocking gorilla/mux vars
 	vars := map[string]string{

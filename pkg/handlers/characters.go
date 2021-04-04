@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/Ubivius/microservice-character-data/pkg/database"
@@ -13,12 +12,11 @@ type KeyCharacter struct{}
 
 // Charactershandler used for getting and updating characters
 type CharactersHandler struct {
-	logger *log.Logger
-	db     database.CharacterDB
+	db database.CharacterDB
 }
 
-func NewCharactersHandler(logger *log.Logger, db database.CharacterDB) *CharactersHandler {
-	return &CharactersHandler{logger, db}
+func NewCharactersHandler(db database.CharacterDB) *CharactersHandler {
+	return &CharactersHandler{db}
 }
 
 // getCharacterID extracts the character ID from the URL
