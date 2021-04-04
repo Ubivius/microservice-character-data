@@ -15,14 +15,14 @@ func TestValidationMiddlewareWithValidBody(t *testing.T) {
 	// Creating request body
 	body := &data.Character{
 		Name:   "addname",
-		UserID: 1,
+		UserID: "a2181017-5c53-422b-b6bc-036b27c04fc8",
 	}
 	bodyBytes, _ := json.Marshal(body)
 
 	request := httptest.NewRequest(http.MethodPost, "/characters", strings.NewReader(string(bodyBytes)))
 	response := httptest.NewRecorder()
 
-	characterHandler := NewCharactersHandler(NewTestLogger())
+	characterHandler := NewCharactersHandler(NewTestLogger(), newCharacterDB())
 
 	// Create a router for middleware because function attachment is handled by gorilla/mux
 	router := mux.NewRouter()
@@ -40,7 +40,7 @@ func TestValidationMiddlewareWithValidBody(t *testing.T) {
 func TestValidationMiddlewareWithNoName(t *testing.T) {
 	// Creating request body
 	body := &data.Character{
-		UserID: 1,
+		UserID: "a2181017-5c53-422b-b6bc-036b27c04fc8",
 	}
 	bodyBytes, err := json.Marshal(body)
 	if err != nil {
@@ -50,7 +50,7 @@ func TestValidationMiddlewareWithNoName(t *testing.T) {
 	request := httptest.NewRequest(http.MethodPost, "/characters", strings.NewReader(string(bodyBytes)))
 	response := httptest.NewRecorder()
 
-	characterHandler := NewCharactersHandler(NewTestLogger())
+	characterHandler := NewCharactersHandler(NewTestLogger(), newCharacterDB())
 
 	// Create a router for middleware because linking is handled by gorilla/mux
 	router := mux.NewRouter()
@@ -81,7 +81,7 @@ func TestValidationMiddlewareWithNoUserID(t *testing.T) {
 	request := httptest.NewRequest(http.MethodPost, "/characters", strings.NewReader(string(bodyBytes)))
 	response := httptest.NewRecorder()
 
-	characterHandler := NewCharactersHandler(NewTestLogger())
+	characterHandler := NewCharactersHandler(NewTestLogger(), newCharacterDB())
 
 	// Create a router for middleware because linking is handled by gorilla/mux
 	router := mux.NewRouter()

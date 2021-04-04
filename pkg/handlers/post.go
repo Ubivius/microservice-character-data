@@ -12,13 +12,14 @@ func (characterHandler *CharactersHandler) AddCharacter(responseWriter http.Resp
 	characterHandler.logger.Println("Handle POST Character")
 	character := request.Context().Value(KeyCharacter{}).(*data.Character)
 
-	err := data.AddCharacter(character)
-
-	if err != nil {
+	err := characterHandler.db.AddCharacter(character)
+	switch err {
+	case nil:
+		responseWriter.WriteHeader(http.StatusNoContent)
+		return
+	default:
 		characterHandler.logger.Println("[ERROR] adding character", err)
 		http.Error(responseWriter, "Error adding character", http.StatusInternalServerError)
 		return
 	}
-
-	responseWriter.WriteHeader(http.StatusNoContent)
 }

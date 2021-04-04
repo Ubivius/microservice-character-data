@@ -15,7 +15,8 @@ func New(charactersHandler *handlers.CharactersHandler, logger *log.Logger) *mux
 	// Get Router
 	getRouter := router.Methods(http.MethodGet).Subrouter()
 	getRouter.HandleFunc("/characters", charactersHandler.GetCharacters)
-	getRouter.HandleFunc("/characters/{id:[0-9]+}", charactersHandler.GetCharacterByID)
+	getRouter.HandleFunc("/characters/{id:[0-9a-z-]+}", charactersHandler.GetCharacterByID)
+	getRouter.HandleFunc("/characters/user/{user_id:[0-9a-z-]+}", charactersHandler.GetCharactersByUserID)
 
 	// Put router
 	putRouter := router.Methods(http.MethodPut).Subrouter()
@@ -29,7 +30,7 @@ func New(charactersHandler *handlers.CharactersHandler, logger *log.Logger) *mux
 
 	// Delete router
 	deleteRouter := router.Methods(http.MethodDelete).Subrouter()
-	deleteRouter.HandleFunc("/characters/{id:[0-9]+}", charactersHandler.Delete)
+	deleteRouter.HandleFunc("/characters/{id:[0-9a-z-]+}", charactersHandler.Delete)
 
 	return router
 }

@@ -11,13 +11,18 @@ func (characterHandler *CharactersHandler) UpdateCharacters(responseWriter http.
 	characterHandler.logger.Println("Handle PUT character", character.ID)
 
 	// Update character
-	err := data.UpdateCharacter(character)
-	if err == data.ErrorCharacterNotFound {
+	err := characterHandler.db.UpdateCharacter(character)
+	switch err {
+	case nil:
+		responseWriter.WriteHeader(http.StatusNoContent)
+		return
+	case data.ErrorCharacterNotFound:
 		characterHandler.logger.Println("[ERROR} character not found", err)
 		http.Error(responseWriter, "Character not found", http.StatusNotFound)
 		return
+	default:
+		characterHandler.logger.Println("[ERROR] updating character", err)
+		http.Error(responseWriter, "Error updating character", http.StatusInternalServerError)
+		return
 	}
-
-	// Returns status, no content required
-	responseWriter.WriteHeader(http.StatusNoContent)
 }
