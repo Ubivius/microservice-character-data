@@ -107,9 +107,9 @@ func (mp *MongoCharacters) GetCharacterByID(id string) (*data.Character, error) 
 	return &result, err
 }
 
-func (mp *MongoCharacters) GetCharactersByUserID(user_id string) (data.Characters, error) {
+func (mp *MongoCharacters) GetCharactersByUserID(userID string) (data.Characters, error) {
 	// MongoDB search filter
-	filter := bson.D{{Key: "user_id", Value: user_id}}
+	filter := bson.D{{Key: "user_id", Value: userID}}
 
 	// characters will hold the array of Messages
 	var characters data.Characters

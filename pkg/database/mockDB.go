@@ -35,8 +35,8 @@ func (mp *MockCharacters) GetCharacterByID(id string) (*data.Character, error) {
 	return characterList[index], nil
 }
 
-func (mp *MockCharacters) GetCharactersByUserID(user_id string) (data.Characters, error) {
-	charactersList := findCharactersListByUserID(user_id)
+func (mp *MockCharacters) GetCharactersByUserID(userID string) (data.Characters, error) {
+	charactersList := findCharactersListByUserID(userID)
 	if len(charactersList) == 0 {
 		return nil, data.ErrorCharacterNotFound
 	}
@@ -72,10 +72,10 @@ func (mp *MockCharacters) DeleteCharacter(id string) error {
 
 // Returns an array of characters in the database
 // Returns -1 when no character is found
-func findCharactersListByUserID(user_id string) data.Characters {
+func findCharactersListByUserID(userID string) data.Characters {
 	var charactersList data.Characters
 	for _ , character := range characterList {
-		if character.UserID == user_id {
+		if character.UserID == userID {
 			charactersList = append(charactersList, character)
 		}
 	}

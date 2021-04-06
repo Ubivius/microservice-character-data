@@ -8,7 +8,7 @@ import (
 type CharacterDB interface {
 	GetCharacters() data.Characters
 	GetCharacterByID(id string) (*data.Character, error)
-	GetCharactersByUserID(user_id string) (data.Characters, error)
+	GetCharactersByUserID(userID string) (data.Characters, error)
 	UpdateCharacter(character *data.Character) error
 	AddCharacter(character *data.Character) error
 	DeleteCharacter(id string) error
