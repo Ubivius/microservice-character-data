@@ -12,6 +12,8 @@ type CharacterDB interface {
 	UpdateCharacter(character *data.Character) error
 	AddCharacter(character *data.Character) error
 	DeleteCharacter(id string) error
+	validateUserExist(userID string) bool
 	Connect() error
+	PingDB() error
 	CloseDB()
 }

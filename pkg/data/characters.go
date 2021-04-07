@@ -5,7 +5,10 @@ import (
 )
 
 // Character specific errors
-var ErrorCharacterNotFound = fmt.Errorf("Character not found")
+var ErrorCharacterNotFound = fmt.Errorf("character not found")
+
+// ErrorUserNotFound : User specific errors
+var ErrorUserNotFound = fmt.Errorf("user not found")
 
 // Character defines the structure for an API character.
 type Character struct {
@@ -18,3 +21,5 @@ type Character struct {
 
 // Characters is a collection of Character
 type Characters []*Character
+
+const MicroserviceUserPath = "http://microservice-user:9090"

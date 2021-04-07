@@ -18,6 +18,10 @@ func New(charactersHandler *handlers.CharactersHandler) *mux.Router {
 	getRouter.HandleFunc("/characters/{id:[0-9a-z-]+}", charactersHandler.GetCharacterByID)
 	getRouter.HandleFunc("/characters/user/{user_id:[0-9a-z-]+}", charactersHandler.GetCharactersByUserID)
 
+	//Health Check
+	getRouter.HandleFunc("/health/live", charactersHandler.LivenessCheck)
+	getRouter.HandleFunc("/health/ready", charactersHandler.ReadinessCheck)
+
 	// Put router
 	putRouter := router.Methods(http.MethodPut).Subrouter()
 	putRouter.HandleFunc("/characters", charactersHandler.UpdateCharacters)

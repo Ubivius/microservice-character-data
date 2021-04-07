@@ -17,6 +17,10 @@ func (characterHandler *CharactersHandler) AddCharacter(responseWriter http.Resp
 	case nil:
 		responseWriter.WriteHeader(http.StatusNoContent)
 		return
+	case data.ErrorUserNotFound:
+		log.Error(err, "UserID doesn't exist")
+		http.Error(responseWriter, "UserID doesn't exist", http.StatusBadRequest)
+		return
 	default:
 		log.Error(err, "Error adding character")
 		http.Error(responseWriter, "Error adding character", http.StatusInternalServerError)
