@@ -16,10 +16,6 @@ func (characterHandler *CharactersHandler) LivenessCheck(responseWriter http.Res
 func (characterHandler *CharactersHandler) ReadinessCheck(responseWriter http.ResponseWriter, request *http.Request) {
 	log.Info("ReadinessCheck")
 
-	readinessProbeMicroserviceUser := data.MicroserviceUserPath + "/health/ready"
-
-	_, errMicroserviceUser := http.Get(readinessProbeMicroserviceUser)
-
 	err := characterHandler.db.PingDB()
 
 	if err != nil {
@@ -27,9 +23,12 @@ func (characterHandler *CharactersHandler) ReadinessCheck(responseWriter http.Re
 		http.Error(responseWriter, "DB unavailable", http.StatusServiceUnavailable)
 		return
 	}
+	
+	readinessProbeMicroserviceUser := data.MicroserviceUserPath + "/health/ready"
+	_, err = http.Get(readinessProbeMicroserviceUser)
 
-	if errMicroserviceUser != nil {
-		log.Error(errMicroserviceUser, "Microservice-user unavailable")
+	if err != nil {
+		log.Error(err, "Microservice-user unavailable")
 		http.Error(responseWriter, "Microservice-user unavailable", http.StatusServiceUnavailable)
 		return
 	}
