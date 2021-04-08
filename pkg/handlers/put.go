@@ -8,16 +8,21 @@ import (
 
 func (characterHandler *CharactersHandler) UpdateCharacters(responseWriter http.ResponseWriter, request *http.Request) {
 	character := request.Context().Value(KeyCharacter{}).(*data.Character)
-	characterHandler.logger.Println("Handle PUT character", character.ID)
+	log.Info("UpdateCharacters request", "id", character.ID)
 
 	// Update character
-	err := data.UpdateCharacter(character)
-	if err == data.ErrorCharacterNotFound {
-		characterHandler.logger.Println("[ERROR} character not found", err)
+	err := characterHandler.db.UpdateCharacter(character)
+	switch err {
+	case nil:
+		responseWriter.WriteHeader(http.StatusNoContent)
+		return
+	case data.ErrorCharacterNotFound:
+		log.Error(err, "Character not found")
 		http.Error(responseWriter, "Character not found", http.StatusNotFound)
 		return
+	default:
+		log.Error(err, "Error updating character")
+		http.Error(responseWriter, "Error updating character", http.StatusInternalServerError)
+		return
 	}
-
-	// Returns status, no content required
-	responseWriter.WriteHeader(http.StatusNoContent)
 }

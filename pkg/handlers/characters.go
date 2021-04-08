@@ -1,10 +1,9 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
-	"strconv"
 
+	"github.com/Ubivius/microservice-character-data/pkg/database"
 	"github.com/gorilla/mux"
 )
 
@@ -13,21 +12,25 @@ type KeyCharacter struct{}
 
 // Charactershandler used for getting and updating characters
 type CharactersHandler struct {
-	logger *log.Logger
+	db database.CharacterDB
 }
 
-func NewCharactersHandler(logger *log.Logger) *CharactersHandler {
-	return &CharactersHandler{logger}
+func NewCharactersHandler(db database.CharacterDB) *CharactersHandler {
+	return &CharactersHandler{db}
 }
 
-// getCharacterId extracts the character ID from the URL
+// getCharacterID extracts the character ID from the URL
 // The verification of this variable is handled by gorilla/mux
-// We panic if it is not valid because that means gorilla is failing
-func getCharacterId(request *http.Request) int {
+func getCharacterID(request *http.Request) string {
 	vars := mux.Vars(request)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		panic(err)
-	}
+	id := vars["id"]
+	return id
+}
+
+// getUserID extracts the user ID from the URL
+// The verification of this variable is handled by gorilla/mux
+func getUserID(request *http.Request) string {
+	vars := mux.Vars(request)
+	id := vars["user_id"]
 	return id
 }

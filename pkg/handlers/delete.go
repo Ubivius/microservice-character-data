@@ -9,21 +9,21 @@ import (
 // DELETE /characters/{id}
 // Deletes a character with specified id from the database
 func (characterHandler *CharactersHandler) Delete(responseWriter http.ResponseWriter, request *http.Request) {
-	id := getCharacterId(request)
-	characterHandler.logger.Println("Handle DELETE character", id)
+	id := getCharacterID(request)
+	log.Info("Delete character by ID request", "id", id)
 
-	err := data.DeleteCharacter(id)
-	if err == data.ErrorCharacterNotFound {
-		characterHandler.logger.Println("[ERROR] deleting, id does not exist")
+	err := characterHandler.db.DeleteCharacter(id)
+	switch err {
+	case nil:
+		responseWriter.WriteHeader(http.StatusNoContent)
+		return
+	case data.ErrorCharacterNotFound:
+		log.Error(err, "Error deleting character, id does not exist")
 		http.Error(responseWriter, "Character not found", http.StatusNotFound)
 		return
-	}
-
-	if err != nil {
-		characterHandler.logger.Println("[ERROR] deleting character", err)
+	default:
+		log.Error(err, "Error deleting character")
 		http.Error(responseWriter, "Error deleting character", http.StatusInternalServerError)
 		return
-	}
-
-	responseWriter.WriteHeader(http.StatusNoContent)
+	}	
 }
