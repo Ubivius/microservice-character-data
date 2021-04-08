@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"net/http"
 	"os"
 	"time"
 
@@ -54,6 +55,10 @@ func (mp *MongoCharacters) Connect() error {
 	mp.collection = collection
 	mp.client = client
 	return nil
+}
+
+func (mp *MongoCharacters) PingDB() error {
+	return mp.client.Ping(context.TODO(), nil)
 }
 
 func (mp *MongoCharacters) CloseDB() {
@@ -160,6 +165,10 @@ func (mp *MongoCharacters) UpdateCharacter(character *data.Character) error {
 }
 
 func (mp *MongoCharacters) AddCharacter(character *data.Character) error {
+	if !mp.validateUserExist(character.UserID){
+		return data.ErrorUserNotFound
+	}
+
 	character.ID = uuid.NewString()
 	// Adding time information to new character
 	character.CreatedOn = time.Now().UTC().String()
@@ -187,4 +196,10 @@ func (mp *MongoCharacters) DeleteCharacter(id string) error {
 
 	log.Info("Deleted documents in achievements collection", "delete_count", result.DeletedCount)
 	return nil
+}
+
+func (mp *MongoCharacters) validateUserExist(userID string) bool {
+	getUserByIDPath := data.MicroserviceUserPath + "/users/" + userID
+	resp, err := http.Get(getUserByIDPath)
+	return err == nil && resp.StatusCode == 200
 }

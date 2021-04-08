@@ -19,6 +19,10 @@ func (mp *MockCharacters) Connect() error {
 	return nil
 }
 
+func (mp *MockCharacters) PingDB() error {
+	return nil
+}
+
 func (mp *MockCharacters) CloseDB() {
 	log.Info("Mocked DB connection closed")
 }
@@ -53,7 +57,10 @@ func (mp *MockCharacters) UpdateCharacter(character *data.Character) error {
 }
 
 func (mp *MockCharacters) AddCharacter(character *data.Character) error {
-	// TODO: Verify that the user exist
+	if !mp.validateUserExist(character.UserID){
+		return data.ErrorUserNotFound
+	}
+
 	character.ID = uuid.NewString()
 	characterList = append(characterList, character)
 	return nil
@@ -91,6 +98,10 @@ func findIndexByCharacterID(id string) int {
 		}
 	}
 	return -1
+}
+
+func (mp *MockCharacters) validateUserExist(userID string) bool {
+	return true
 }
 
 ////////////////////////////////////////////////////////////////////////////////
