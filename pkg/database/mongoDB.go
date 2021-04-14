@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Ubivius/microservice-character-data/pkg/data"
+	"github.com/Ubivius/microservice-character-data/pkg/resources"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -14,12 +15,13 @@ import (
 )
 
 type MongoCharacters struct {
-	client     *mongo.Client
-	collection *mongo.Collection
+	client           *mongo.Client
+	collection       *mongo.Collection
+	resourceManager  resources.ResourceManager
 }
 
-func NewMongoCharacters() CharacterDB {
-	mp := &MongoCharacters{}
+func NewMongoCharacters(r resources.ResourceManager) CharacterDB {
+	mp := &MongoCharacters{resourceManager: r}
 	err := mp.Connect()
 	// If connect fails, kill the program
 	if err != nil {
@@ -30,8 +32,15 @@ func NewMongoCharacters() CharacterDB {
 }
 
 func (mp *MongoCharacters) Connect() error {
+	// Getting mongodb secret
+	password, err := mp.resourceManager.GetSecret("default", "mongodb", "mongodb-root-password")
+	if err != nil {
+		log.Error(err, "Failed to get mongodb secret")
+		os.Exit(1)
+	}
+	
 	// Setting client options
-	clientOptions := options.Client().ApplyURI("mongodb://admin:pass@localhost:27888/?authSource=admin")
+	clientOptions := options.Client().ApplyURI("mongodb://root:" + password + "@mongodb:27017/?authSource=admin")
 
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
