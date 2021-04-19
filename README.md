@@ -12,24 +12,18 @@ Character data microservice for our online game framework.
 `GET` `/health/live` Returns a Status OK when live.
 
 `GET` `/health/ready` Returns a Status OK when ready or an error when dependencies are not available.
-___
 
 `POST` `/characters` Add new character with specific data.
-
-###### Data Params
-
+__Data Params__
 ```json
 {
   "user_id": "string, required",
   "name":    "string, required",
 }
 ```
-***
 
-`PUT` `/characters` Update character data
-
-###### Data Params
-
+`PUT` `/characters` Update character data 
+__Data Params__
 ```json
 {
   "id":      "string, required",
@@ -37,7 +31,5 @@ ___
   "name":    "string",
 }
 ```
-
----
 
 `DELETE` `/characters/{id}` Delete a character.  `id=[string]`
