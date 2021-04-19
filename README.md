@@ -14,6 +14,7 @@ Character data microservice for our online game framework.
 `GET` `/health/ready` Returns a Status OK when ready or an error when dependencies are not available.
 
 `POST` `/characters` Add new character with specific data.
+
 __Data Params__
 ```json
 {
@@ -22,7 +23,7 @@ __Data Params__
 }
 ```
 
-`PUT` `/characters` Update character data 
+`PUT` `/characters` Update character data </br>
 __Data Params__
 ```json
 {
