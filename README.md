@@ -12,6 +12,7 @@ Character data microservice for our online game framework.
 `GET` `/health/live` Returns a Status OK when live.
 
 `GET` `/health/ready` Returns a Status OK when ready or an error when dependencies are not available.
+___
 
 `POST` `/characters` Add new character with specific data.
 
@@ -23,6 +24,7 @@ Character data microservice for our online game framework.
   "name":    "string, required",
 }
 ```
+***
 
 `PUT` `/characters` Update character data
 
@@ -35,5 +37,7 @@ Character data microservice for our online game framework.
   "name":    "string",
 }
 ```
+
+---
 
 `DELETE` `/characters/{id}` Delete a character.  `id=[string]`
