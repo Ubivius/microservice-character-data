@@ -4,20 +4,15 @@ import (
 	"testing"
 
 	"github.com/Ubivius/microservice-character-data/pkg/data"
-	"github.com/Ubivius/microservice-character-data/pkg/resources"
 	"github.com/google/uuid"
 )
-
-func newResourceManager() resources.ResourceManager {
-	return resources.NewMockResources()
-}
 
 func TestMongoDBConnectionAndShutdownIntegration(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Test skipped during unit tests")
 	}
 
-	mp := NewMongoCharacters(newResourceManager())
+	mp := NewMongoCharacters()
 	if mp == nil {
 		t.Fail()
 	}
@@ -34,7 +29,7 @@ func TestMongoDBAddCharacterIntegration(t *testing.T) {
 		UserID:      "a2181017-5c53-422b-b6bc-036b27c04fc8",
 	}
 
-	mp := NewMongoCharacters(newResourceManager())
+	mp := NewMongoCharacters()
 	err := mp.AddCharacter(character)
 	if err != nil {
 		t.Errorf("Failed to add character to database")
@@ -52,7 +47,7 @@ func TestMongoDBUpdateCharacterIntegration(t *testing.T) {
 		UserID:      "a2181017-5c53-422b-b6bc-036b27c04fc8",
 	}
 
-	mp := NewMongoCharacters(newResourceManager())
+	mp := NewMongoCharacters()
 	err := mp.UpdateCharacter(character)
 	if err != nil {
 		t.Fail()
@@ -65,7 +60,7 @@ func TestMongoDBGetCharactersIntegration(t *testing.T) {
 		t.Skip("Test skipped during unit tests")
 	}
 
-	mp := NewMongoCharacters(newResourceManager())
+	mp := NewMongoCharacters()
 	characters := mp.GetCharacters()
 	if characters == nil {
 		t.Fail()
@@ -79,7 +74,7 @@ func TestMongoDBGetCharacterByIDIntegration(t *testing.T) {
 		t.Skip("Test skipped during unit tests")
 	}
 
-	mp := NewMongoCharacters(newResourceManager())
+	mp := NewMongoCharacters()
 	_, err := mp.GetCharacterByID("a2181017-5c53-422b-b6bc-036b27c04fc8")
 	if err != nil {
 		t.Fail()
@@ -93,7 +88,7 @@ func TestMongoDBGetCharactersByUserIDIntegration(t *testing.T) {
 		t.Skip("Test skipped during unit tests")
 	}
 
-	mp := NewMongoCharacters(newResourceManager())
+	mp := NewMongoCharacters()
 	_, err := mp.GetCharactersByUserID("a2181017-5c53-422b-b6bc-036b27c04fc8")
 	if err != nil {
 		t.Fail()

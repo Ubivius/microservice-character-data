@@ -8,14 +8,11 @@ import (
 
 // LivenessCheck determine when the application needs to be restarted
 func (characterHandler *CharactersHandler) LivenessCheck(responseWriter http.ResponseWriter, request *http.Request) {
-	log.Info("LivenessCheck")
 	responseWriter.WriteHeader(http.StatusOK)
 }
 
 //ReadinessCheck verifies that the application is ready to accept requests
 func (characterHandler *CharactersHandler) ReadinessCheck(responseWriter http.ResponseWriter, request *http.Request) {
-	log.Info("ReadinessCheck")
-
 	err := characterHandler.db.PingDB()
 
 	if err != nil {
