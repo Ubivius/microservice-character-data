@@ -2,26 +2,28 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/Ubivius/microservice-character-data/pkg/data"
-	"github.com/Ubivius/microservice-character-data/pkg/resources"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// ErrorEnvVar : Environment variable error
+var ErrorEnvVar = fmt.Errorf("missing environment variable")
+
 type MongoCharacters struct {
 	client           *mongo.Client
 	collection       *mongo.Collection
-	resourceManager  resources.ResourceManager
 }
 
-func NewMongoCharacters(r resources.ResourceManager) CharacterDB {
-	mp := &MongoCharacters{resourceManager: r}
+func NewMongoCharacters() CharacterDB {
+	mp := &MongoCharacters{}
 	err := mp.Connect()
 	// If connect fails, kill the program
 	if err != nil {
@@ -32,15 +34,10 @@ func NewMongoCharacters(r resources.ResourceManager) CharacterDB {
 }
 
 func (mp *MongoCharacters) Connect() error {
-	// Getting mongodb secret
-	password, err := mp.resourceManager.GetSecret("default", "mongodb", "mongodb-root-password")
-	if err != nil {
-		log.Error(err, "Failed to get mongodb secret")
-		os.Exit(1)
-	}
+	uri := mongodbURI()
 	
 	// Setting client options
-	clientOptions := options.Client().ApplyURI("mongodb://root:" + password + "@mongodb:27017/?authSource=admin")
+	clientOptions := options.Client().ApplyURI(uri)
 
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
@@ -211,4 +208,18 @@ func (mp *MongoCharacters) validateUserExist(userID string) bool {
 	getUserByIDPath := data.MicroserviceUserPath + "/users/" + userID
 	resp, err := http.Get(getUserByIDPath)
 	return err == nil && resp.StatusCode == 200
+}
+
+func mongodbURI() string { 
+	hostname := os.Getenv("DB_HOSTNAME")
+	port := os.Getenv("DB_PORT")
+	username := os.Getenv("DB_USERNAME")
+	password := os.Getenv("DB_PASSWORD")
+
+	if hostname == "" || port == "" || username == "" || password == "" {
+		log.Error(ErrorEnvVar, "Some environment variables are not available for the DB connection. DB_HOSTNAME, DB_PORT, DB_USERNAME, DB_PASSWORD")
+		os.Exit(1)
+	}
+
+	return "mongodb://" + username + ":" + password + "@" + hostname + ":" + port + "/?authSource=admin"
 }
