@@ -14,7 +14,7 @@ func (characterHandler *CharactersHandler) GetCharacters(responseWriter http.Res
 	_, span := otel.Tracer("character-data").Start(request.Context(), "getAllCharacters")
 	defer span.End()
 	log.Info("GetCharacters request")
-	characterList := characterHandler.db.GetCharacters()
+	characterList := characterHandler.db.GetCharacters(request.Context())
 	err := json.NewEncoder(responseWriter).Encode(characterList)
 	if err != nil {
 		log.Error(err, "Error serializing character")
@@ -29,7 +29,7 @@ func (characterHandler *CharactersHandler) GetCharacterByID(responseWriter http.
 
 	log.Info("GetCharacterByID request", "id", id)
 
-	character, err := characterHandler.db.GetCharacterByID(id)
+	character, err := characterHandler.db.GetCharacterByID(request.Context(), id)
 	switch err {
 	case nil:
 		err = json.NewEncoder(responseWriter).Encode(character)

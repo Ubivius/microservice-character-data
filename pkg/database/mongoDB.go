@@ -74,7 +74,7 @@ func (mp *MongoCharacters) CloseDB() {
 	}
 }
 
-func (mp *MongoCharacters) GetCharacters() data.Characters {
+func (mp *MongoCharacters) GetCharacters(ctx context.Context) data.Characters {
 	// characters will hold the array of Characters
 	var characters data.Characters
 
@@ -104,7 +104,7 @@ func (mp *MongoCharacters) GetCharacters() data.Characters {
 	return characters
 }
 
-func (mp *MongoCharacters) GetCharacterByID(id string) (*data.Character, error) {
+func (mp *MongoCharacters) GetCharacterByID(ctx context.Context, id string) (*data.Character, error) {
 	// MongoDB search filter
 	filter := bson.D{{Key: "_id", Value: id}}
 
@@ -118,7 +118,7 @@ func (mp *MongoCharacters) GetCharacterByID(id string) (*data.Character, error) 
 	return &result, err
 }
 
-func (mp *MongoCharacters) GetCharactersByUserID(userID string) (data.Characters, error) {
+func (mp *MongoCharacters) GetCharactersByUserID(ctx context.Context, userID string) (data.Characters, error) {
 	// MongoDB search filter
 	filter := bson.D{{Key: "user_id", Value: userID}}
 
@@ -151,7 +151,7 @@ func (mp *MongoCharacters) GetCharactersByUserID(userID string) (data.Characters
 	return characters, err
 }
 
-func (mp *MongoCharacters) UpdateCharacter(character *data.Character) error {
+func (mp *MongoCharacters) UpdateCharacter(ctx context.Context, character *data.Character) error {
 	// Set updated timestamp in character
 	character.UpdatedOn = time.Now().UTC().String()
 
@@ -170,7 +170,7 @@ func (mp *MongoCharacters) UpdateCharacter(character *data.Character) error {
 	return err
 }
 
-func (mp *MongoCharacters) AddCharacter(character *data.Character) error {
+func (mp *MongoCharacters) AddCharacter(ctx context.Context, character *data.Character) error {
 	if !mp.validateUserExist(character.UserID) {
 		return data.ErrorUserNotFound
 	}
@@ -190,7 +190,7 @@ func (mp *MongoCharacters) AddCharacter(character *data.Character) error {
 	return nil
 }
 
-func (mp *MongoCharacters) DeleteCharacter(id string) error {
+func (mp *MongoCharacters) DeleteCharacter(ctx context.Context, id string) error {
 	// MongoDB search filter
 	filter := bson.D{{Key: "_id", Value: id}}
 

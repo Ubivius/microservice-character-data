@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"testing"
 
 	"github.com/Ubivius/microservice-character-data/pkg/data"
@@ -25,12 +26,12 @@ func TestMongoDBAddCharacterIntegration(t *testing.T) {
 	}
 
 	character := &data.Character{
-		Name:        "testName",
-		UserID:      "a2181017-5c53-422b-b6bc-036b27c04fc8",
+		Name:   "testName",
+		UserID: "a2181017-5c53-422b-b6bc-036b27c04fc8",
 	}
 
 	mp := NewMongoCharacters()
-	err := mp.AddCharacter(character)
+	err := mp.AddCharacter(context.Background(), character)
 	if err != nil {
 		t.Errorf("Failed to add character to database")
 	}
@@ -43,12 +44,12 @@ func TestMongoDBUpdateCharacterIntegration(t *testing.T) {
 	}
 
 	character := &data.Character{
-		ID:          uuid.NewString(),
-		UserID:      "a2181017-5c53-422b-b6bc-036b27c04fc8",
+		ID:     uuid.NewString(),
+		UserID: "a2181017-5c53-422b-b6bc-036b27c04fc8",
 	}
 
 	mp := NewMongoCharacters()
-	err := mp.UpdateCharacter(character)
+	err := mp.UpdateCharacter(context.Background(), character)
 	if err != nil {
 		t.Fail()
 	}
@@ -61,7 +62,7 @@ func TestMongoDBGetCharactersIntegration(t *testing.T) {
 	}
 
 	mp := NewMongoCharacters()
-	characters := mp.GetCharacters()
+	characters := mp.GetCharacters(context.Background())
 	if characters == nil {
 		t.Fail()
 	}
@@ -75,7 +76,7 @@ func TestMongoDBGetCharacterByIDIntegration(t *testing.T) {
 	}
 
 	mp := NewMongoCharacters()
-	_, err := mp.GetCharacterByID("a2181017-5c53-422b-b6bc-036b27c04fc8")
+	_, err := mp.GetCharacterByID(context.Background(), "a2181017-5c53-422b-b6bc-036b27c04fc8")
 	if err != nil {
 		t.Fail()
 	}
@@ -89,7 +90,7 @@ func TestMongoDBGetCharactersByUserIDIntegration(t *testing.T) {
 	}
 
 	mp := NewMongoCharacters()
-	_, err := mp.GetCharactersByUserID("a2181017-5c53-422b-b6bc-036b27c04fc8")
+	_, err := mp.GetCharactersByUserID(context.Background(), "a2181017-5c53-422b-b6bc-036b27c04fc8")
 	if err != nil {
 		t.Fail()
 	}
