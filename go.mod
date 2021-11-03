@@ -4,6 +4,7 @@ go 1.15
 
 require (
 	github.com/Ubivius/pkg-telemetry v1.0.0 // indirect
+	github.com/aws/aws-sdk-go v1.34.28 // indirect
 	github.com/docker/spdystream v0.0.0-20160310174837-449fdfce4d96 // indirect
 	github.com/go-openapi/spec v0.19.3 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
@@ -13,7 +14,7 @@ require (
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	go.etcd.io/etcd v0.5.0-alpha.5.0.20200910180754-dd1b699fc489 // indirect
-	go.mongodb.org/mongo-driver v1.5.1
+	go.mongodb.org/mongo-driver v1.7.4
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.26.0
 	go.opentelemetry.io/otel v1.1.0 // indirect
 	go.opentelemetry.io/otel/exporters/stdout v0.16.0

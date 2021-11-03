@@ -18,8 +18,8 @@ import (
 var ErrorEnvVar = fmt.Errorf("missing environment variable")
 
 type MongoCharacters struct {
-	client           *mongo.Client
-	collection       *mongo.Collection
+	client     *mongo.Client
+	collection *mongo.Collection
 }
 
 func NewMongoCharacters() CharacterDB {
@@ -35,7 +35,7 @@ func NewMongoCharacters() CharacterDB {
 
 func (mp *MongoCharacters) Connect() error {
 	uri := mongodbURI()
-	
+
 	// Setting client options
 	clientOptions := options.Client().ApplyURI(uri)
 
@@ -171,7 +171,7 @@ func (mp *MongoCharacters) UpdateCharacter(character *data.Character) error {
 }
 
 func (mp *MongoCharacters) AddCharacter(character *data.Character) error {
-	if !mp.validateUserExist(character.UserID){
+	if !mp.validateUserExist(character.UserID) {
 		return data.ErrorUserNotFound
 	}
 
@@ -210,7 +210,7 @@ func (mp *MongoCharacters) validateUserExist(userID string) bool {
 	return err == nil && resp.StatusCode == 200
 }
 
-func mongodbURI() string { 
+func mongodbURI() string {
 	hostname := os.Getenv("DB_HOSTNAME")
 	port := os.Getenv("DB_PORT")
 	username := os.Getenv("DB_USERNAME")
