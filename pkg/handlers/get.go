@@ -5,11 +5,14 @@ import (
 	"net/http"
 
 	"github.com/Ubivius/microservice-character-data/pkg/data"
+	"go.opentelemetry.io/otel"
 )
 
 // GET /characters
 // Returns the full list of characters
 func (characterHandler *CharactersHandler) GetCharacters(responseWriter http.ResponseWriter, request *http.Request) {
+	_, span := otel.Tracer("character-data").Start(request.Context(), "getAllCharacters")
+	defer span.End()
 	log.Info("GetCharacters request")
 	characterList := characterHandler.db.GetCharacters()
 	err := json.NewEncoder(responseWriter).Encode(characterList)
