@@ -43,14 +43,14 @@ func (mp *MongoCharacters) Connect() error {
 	opts.Monitor = otelmongo.NewMonitor()
 
 	// Connect to MongoDB
-	client, err := mongo.Connect(context.TODO(), clientOptions)
+	client, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil || client == nil {
 		log.Error(err, "Failed to connect to database. Shutting down service")
 		os.Exit(1)
 	}
 
 	// Ping DB
-	err = client.Ping(context.TODO(), nil)
+	err = client.Ping(context.Background(), nil)
 	if err != nil {
 		log.Error(err, "Failed to ping database. Shutting down service")
 		os.Exit(1)
@@ -67,11 +67,11 @@ func (mp *MongoCharacters) Connect() error {
 }
 
 func (mp *MongoCharacters) PingDB() error {
-	return mp.client.Ping(context.TODO(), nil)
+	return mp.client.Ping(context.Background(), nil)
 }
 
 func (mp *MongoCharacters) CloseDB() {
-	err := mp.client.Disconnect(context.TODO())
+	err := mp.client.Disconnect(context.Background())
 	if err != nil {
 		log.Error(err, "Error while disconnecting from database")
 	}
@@ -82,13 +82,13 @@ func (mp *MongoCharacters) GetCharacters(ctx context.Context) data.Characters {
 	var characters data.Characters
 
 	// Find returns a cursor that must be iterated through
-	cursor, err := mp.collection.Find(context.TODO(), bson.D{})
+	cursor, err := mp.collection.Find(ctx, bson.D{})
 	if err != nil {
 		log.Error(err, "Error getting characters from database")
 	}
 
 	// Iterating through cursor
-	for cursor.Next(context.TODO()) {
+	for cursor.Next(ctx) {
 		var result data.Character
 		err := cursor.Decode(&result)
 		if err != nil {
@@ -102,7 +102,7 @@ func (mp *MongoCharacters) GetCharacters(ctx context.Context) data.Characters {
 	}
 
 	// Close the cursor once finished
-	cursor.Close(context.TODO())
+	cursor.Close(ctx)
 
 	return characters
 }
@@ -115,7 +115,7 @@ func (mp *MongoCharacters) GetCharacterByID(ctx context.Context, id string) (*da
 	var result data.Character
 
 	// Find a single matching item from the database
-	err := mp.collection.FindOne(context.TODO(), filter).Decode(&result)
+	err := mp.collection.FindOne(ctx, filter).Decode(&result)
 
 	// Parse result into the returned character
 	return &result, err
@@ -129,13 +129,13 @@ func (mp *MongoCharacters) GetCharactersByUserID(ctx context.Context, userID str
 	var characters data.Characters
 
 	// Find returns a cursor that must be iterated through
-	cursor, err := mp.collection.Find(context.TODO(), filter)
+	cursor, err := mp.collection.Find(ctx, filter)
 	if err != nil {
 		log.Error(err, "Error getting characters by userID from database")
 	}
 
 	// Iterating through cursor
-	for cursor.Next(context.TODO()) {
+	for cursor.Next(ctx) {
 		var result data.Character
 		err := cursor.Decode(&result)
 		if err != nil {
@@ -149,7 +149,7 @@ func (mp *MongoCharacters) GetCharactersByUserID(ctx context.Context, userID str
 	}
 
 	// Close the cursor once finished
-	cursor.Close(context.TODO())
+	cursor.Close(ctx)
 
 	return characters, err
 }
@@ -165,7 +165,7 @@ func (mp *MongoCharacters) UpdateCharacter(ctx context.Context, character *data.
 	update := bson.M{"$set": character}
 
 	// Update a single item in the database with the values in update that match the filter
-	_, err := mp.collection.UpdateOne(context.TODO(), filter, update)
+	_, err := mp.collection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		log.Error(err, "Error updating character.")
 	}
@@ -184,7 +184,7 @@ func (mp *MongoCharacters) AddCharacter(ctx context.Context, character *data.Cha
 	character.UpdatedOn = time.Now().UTC().String()
 
 	// Inserting the new character into the database
-	insertResult, err := mp.collection.InsertOne(context.TODO(), character)
+	insertResult, err := mp.collection.InsertOne(ctx, character)
 	if err != nil {
 		return err
 	}
@@ -198,7 +198,7 @@ func (mp *MongoCharacters) DeleteCharacter(ctx context.Context, id string) error
 	filter := bson.D{{Key: "_id", Value: id}}
 
 	// Delete a single item matching the filter
-	result, err := mp.collection.DeleteOne(context.TODO(), filter)
+	result, err := mp.collection.DeleteOne(ctx, filter)
 	if err != nil {
 		log.Error(err, "Error deleting character")
 	}
