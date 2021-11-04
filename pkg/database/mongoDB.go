@@ -12,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo"
 )
 
 // ErrorEnvVar : Environment variable error
@@ -37,7 +38,9 @@ func (mp *MongoCharacters) Connect() error {
 	uri := mongodbURI()
 
 	// Setting client options
-	clientOptions := options.Client().ApplyURI(uri)
+	opts := options.Client()
+	clientOptions := opts.ApplyURI(uri)
+	opts.Monitor = otelmongo.NewMonitor()
 
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
