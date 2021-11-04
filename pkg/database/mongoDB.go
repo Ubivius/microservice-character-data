@@ -203,7 +203,7 @@ func (mp *MongoCharacters) DeleteCharacter(ctx context.Context, id string) error
 		log.Error(err, "Error deleting character")
 	}
 
-	log.Info("Deleted documents in achievements collection", "delete_count", result.DeletedCount)
+	log.Info("Deleted documents in characters collection", "delete_count", result.DeletedCount)
 	return nil
 }
 

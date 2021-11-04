@@ -13,7 +13,7 @@ import (
 func New(charactersHandler *handlers.CharactersHandler) *mux.Router {
 	log.Info("Starting router")
 	router := mux.NewRouter()
-	router.Use(otelmux.Middleware("achievements"))
+	router.Use(otelmux.Middleware("character-data"))
 	router.Use(metrics.RequestCountMiddleware)
 
 	// Get Router

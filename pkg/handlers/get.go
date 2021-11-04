@@ -72,7 +72,7 @@ func (characterHandler *CharactersHandler) GetCharactersByUserID(responseWriter 
 		http.Error(responseWriter, "Characters not found", http.StatusNotFound)
 		return
 	default:
-		log.Error(err, "Error getting achievements")
+		log.Error(err, "Error getting characters")
 		http.Error(responseWriter, err.Error(), http.StatusInternalServerError)
 		return
 	}
