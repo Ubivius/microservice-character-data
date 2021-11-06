@@ -165,9 +165,13 @@ func (mp *MongoCharacters) UpdateCharacter(ctx context.Context, character *data.
 	update := bson.M{"$set": character}
 
 	// Update a single item in the database with the values in update that match the filter
-	_, err := mp.collection.UpdateOne(ctx, filter, update)
+	updateResult, err := mp.collection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		log.Error(err, "Error updating character.")
+	}
+	if updateResult.MatchedCount != 1 {
+		log.Error(data.ErrorCharacterNotFound, "No matches found for update")
+		return err
 	}
 
 	return err
