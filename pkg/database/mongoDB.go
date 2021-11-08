@@ -12,14 +12,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo"
 )
 
 // ErrorEnvVar : Environment variable error
 var ErrorEnvVar = fmt.Errorf("missing environment variable")
 
 type MongoCharacters struct {
-	client           *mongo.Client
-	collection       *mongo.Collection
+	client     *mongo.Client
+	collection *mongo.Collection
 }
 
 func NewMongoCharacters() CharacterDB {
@@ -35,19 +36,21 @@ func NewMongoCharacters() CharacterDB {
 
 func (mp *MongoCharacters) Connect() error {
 	uri := mongodbURI()
-	
+
 	// Setting client options
-	clientOptions := options.Client().ApplyURI(uri)
+	opts := options.Client()
+	clientOptions := opts.ApplyURI(uri)
+	opts.Monitor = otelmongo.NewMonitor()
 
 	// Connect to MongoDB
-	client, err := mongo.Connect(context.TODO(), clientOptions)
+	client, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil || client == nil {
 		log.Error(err, "Failed to connect to database. Shutting down service")
 		os.Exit(1)
 	}
 
 	// Ping DB
-	err = client.Ping(context.TODO(), nil)
+	err = client.Ping(context.Background(), nil)
 	if err != nil {
 		log.Error(err, "Failed to ping database. Shutting down service")
 		os.Exit(1)
@@ -64,28 +67,28 @@ func (mp *MongoCharacters) Connect() error {
 }
 
 func (mp *MongoCharacters) PingDB() error {
-	return mp.client.Ping(context.TODO(), nil)
+	return mp.client.Ping(context.Background(), nil)
 }
 
 func (mp *MongoCharacters) CloseDB() {
-	err := mp.client.Disconnect(context.TODO())
+	err := mp.client.Disconnect(context.Background())
 	if err != nil {
 		log.Error(err, "Error while disconnecting from database")
 	}
 }
 
-func (mp *MongoCharacters) GetCharacters() data.Characters {
+func (mp *MongoCharacters) GetCharacters(ctx context.Context) data.Characters {
 	// characters will hold the array of Characters
 	var characters data.Characters
 
 	// Find returns a cursor that must be iterated through
-	cursor, err := mp.collection.Find(context.TODO(), bson.D{})
+	cursor, err := mp.collection.Find(ctx, bson.D{})
 	if err != nil {
 		log.Error(err, "Error getting characters from database")
 	}
 
 	// Iterating through cursor
-	for cursor.Next(context.TODO()) {
+	for cursor.Next(ctx) {
 		var result data.Character
 		err := cursor.Decode(&result)
 		if err != nil {
@@ -99,12 +102,12 @@ func (mp *MongoCharacters) GetCharacters() data.Characters {
 	}
 
 	// Close the cursor once finished
-	cursor.Close(context.TODO())
+	cursor.Close(ctx)
 
 	return characters
 }
 
-func (mp *MongoCharacters) GetCharacterByID(id string) (*data.Character, error) {
+func (mp *MongoCharacters) GetCharacterByID(ctx context.Context, id string) (*data.Character, error) {
 	// MongoDB search filter
 	filter := bson.D{{Key: "_id", Value: id}}
 
@@ -112,13 +115,13 @@ func (mp *MongoCharacters) GetCharacterByID(id string) (*data.Character, error) 
 	var result data.Character
 
 	// Find a single matching item from the database
-	err := mp.collection.FindOne(context.TODO(), filter).Decode(&result)
+	err := mp.collection.FindOne(ctx, filter).Decode(&result)
 
 	// Parse result into the returned character
 	return &result, err
 }
 
-func (mp *MongoCharacters) GetCharactersByUserID(userID string) (data.Characters, error) {
+func (mp *MongoCharacters) GetCharactersByUserID(ctx context.Context, userID string) (data.Characters, error) {
 	// MongoDB search filter
 	filter := bson.D{{Key: "user_id", Value: userID}}
 
@@ -126,13 +129,13 @@ func (mp *MongoCharacters) GetCharactersByUserID(userID string) (data.Characters
 	var characters data.Characters
 
 	// Find returns a cursor that must be iterated through
-	cursor, err := mp.collection.Find(context.TODO(), filter)
+	cursor, err := mp.collection.Find(ctx, filter)
 	if err != nil {
 		log.Error(err, "Error getting characters by userID from database")
 	}
 
 	// Iterating through cursor
-	for cursor.Next(context.TODO()) {
+	for cursor.Next(ctx) {
 		var result data.Character
 		err := cursor.Decode(&result)
 		if err != nil {
@@ -146,12 +149,12 @@ func (mp *MongoCharacters) GetCharactersByUserID(userID string) (data.Characters
 	}
 
 	// Close the cursor once finished
-	cursor.Close(context.TODO())
+	cursor.Close(ctx)
 
 	return characters, err
 }
 
-func (mp *MongoCharacters) UpdateCharacter(character *data.Character) error {
+func (mp *MongoCharacters) UpdateCharacter(ctx context.Context, character *data.Character) error {
 	// Set updated timestamp in character
 	character.UpdatedOn = time.Now().UTC().String()
 
@@ -162,16 +165,20 @@ func (mp *MongoCharacters) UpdateCharacter(character *data.Character) error {
 	update := bson.M{"$set": character}
 
 	// Update a single item in the database with the values in update that match the filter
-	_, err := mp.collection.UpdateOne(context.TODO(), filter, update)
+	updateResult, err := mp.collection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		log.Error(err, "Error updating character.")
+	}
+	if updateResult.MatchedCount != 1 {
+		log.Error(data.ErrorCharacterNotFound, "No matches found for update")
+		return err
 	}
 
 	return err
 }
 
-func (mp *MongoCharacters) AddCharacter(character *data.Character) error {
-	if !mp.validateUserExist(character.UserID){
+func (mp *MongoCharacters) AddCharacter(ctx context.Context, character *data.Character) error {
+	if !mp.validateUserExist(character.UserID) {
 		return data.ErrorUserNotFound
 	}
 
@@ -181,7 +188,7 @@ func (mp *MongoCharacters) AddCharacter(character *data.Character) error {
 	character.UpdatedOn = time.Now().UTC().String()
 
 	// Inserting the new character into the database
-	insertResult, err := mp.collection.InsertOne(context.TODO(), character)
+	insertResult, err := mp.collection.InsertOne(ctx, character)
 	if err != nil {
 		return err
 	}
@@ -190,17 +197,17 @@ func (mp *MongoCharacters) AddCharacter(character *data.Character) error {
 	return nil
 }
 
-func (mp *MongoCharacters) DeleteCharacter(id string) error {
+func (mp *MongoCharacters) DeleteCharacter(ctx context.Context, id string) error {
 	// MongoDB search filter
 	filter := bson.D{{Key: "_id", Value: id}}
 
 	// Delete a single item matching the filter
-	result, err := mp.collection.DeleteOne(context.TODO(), filter)
+	result, err := mp.collection.DeleteOne(ctx, filter)
 	if err != nil {
 		log.Error(err, "Error deleting character")
 	}
 
-	log.Info("Deleted documents in achievements collection", "delete_count", result.DeletedCount)
+	log.Info("Deleted documents in characters collection", "delete_count", result.DeletedCount)
 	return nil
 }
 
@@ -210,7 +217,23 @@ func (mp *MongoCharacters) validateUserExist(userID string) bool {
 	return err == nil && resp.StatusCode == 200
 }
 
-func mongodbURI() string { 
+func deleteAllCharactersFromMongoDB() error {
+	uri := mongodbURI()
+
+	// Setting client options
+	opts := options.Client()
+	clientOptions := opts.ApplyURI(uri)
+	client, err := mongo.Connect(context.Background(), clientOptions)
+	if err != nil || client == nil {
+		log.Error(err, "Failed to connect to database. Failing test")
+		return err
+	}
+	collection := client.Database("ubivius").Collection("characters")
+	_, err = collection.DeleteMany(context.Background(), bson.D{{}})
+	return err
+}
+
+func mongodbURI() string {
 	hostname := os.Getenv("DB_HOSTNAME")
 	port := os.Getenv("DB_PORT")
 	username := os.Getenv("DB_USERNAME")

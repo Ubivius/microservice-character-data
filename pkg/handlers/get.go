@@ -5,13 +5,16 @@ import (
 	"net/http"
 
 	"github.com/Ubivius/microservice-character-data/pkg/data"
+	"go.opentelemetry.io/otel"
 )
 
 // GET /characters
 // Returns the full list of characters
 func (characterHandler *CharactersHandler) GetCharacters(responseWriter http.ResponseWriter, request *http.Request) {
+	_, span := otel.Tracer("character-data").Start(request.Context(), "getAllCharacters")
+	defer span.End()
 	log.Info("GetCharacters request")
-	characterList := characterHandler.db.GetCharacters()
+	characterList := characterHandler.db.GetCharacters(request.Context())
 	err := json.NewEncoder(responseWriter).Encode(characterList)
 	if err != nil {
 		log.Error(err, "Error serializing character")
@@ -22,11 +25,13 @@ func (characterHandler *CharactersHandler) GetCharacters(responseWriter http.Res
 // GET /characters/{id}
 // Returns a single character from the database
 func (characterHandler *CharactersHandler) GetCharacterByID(responseWriter http.ResponseWriter, request *http.Request) {
+	_, span := otel.Tracer("character-data").Start(request.Context(), "getCharacterById")
+	defer span.End()
 	id := getCharacterID(request)
 
 	log.Info("GetCharacterByID request", "id", id)
 
-	character, err := characterHandler.db.GetCharacterByID(id)
+	character, err := characterHandler.db.GetCharacterByID(request.Context(), id)
 	switch err {
 	case nil:
 		err = json.NewEncoder(responseWriter).Encode(character)
@@ -48,11 +53,13 @@ func (characterHandler *CharactersHandler) GetCharacterByID(responseWriter http.
 // GET /characters/user/{user_id}
 // Returns an array of characters from the database
 func (characterHandler *CharactersHandler) GetCharactersByUserID(responseWriter http.ResponseWriter, request *http.Request) {
+	_, span := otel.Tracer("character-data").Start(request.Context(), "getCharactersByUserId")
+	defer span.End()
 	user_id := getUserID(request)
 
 	log.Info("GetCharactersByUserID request", "user_id", user_id)
 
-	characters, err := characterHandler.db.GetCharactersByUserID(user_id)
+	characters, err := characterHandler.db.GetCharactersByUserID(request.Context(), user_id)
 	switch err {
 	case nil:
 		err = json.NewEncoder(responseWriter).Encode(characters)
@@ -65,7 +72,7 @@ func (characterHandler *CharactersHandler) GetCharactersByUserID(responseWriter 
 		http.Error(responseWriter, "Characters not found", http.StatusNotFound)
 		return
 	default:
-		log.Error(err, "Error getting achievements")
+		log.Error(err, "Error getting characters")
 		http.Error(responseWriter, err.Error(), http.StatusInternalServerError)
 		return
 	}

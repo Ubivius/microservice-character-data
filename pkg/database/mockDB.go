@@ -1,10 +1,12 @@
 package database
 
 import (
+	"context"
 	"time"
 
 	"github.com/Ubivius/microservice-character-data/pkg/data"
 	"github.com/google/uuid"
+	"go.opentelemetry.io/otel"
 )
 
 type MockCharacters struct {
@@ -27,11 +29,15 @@ func (mp *MockCharacters) CloseDB() {
 	log.Info("Mocked DB connection closed")
 }
 
-func (mp *MockCharacters) GetCharacters() data.Characters {
+func (mp *MockCharacters) GetCharacters(ctx context.Context) data.Characters {
+	_, span := otel.Tracer("character-data").Start(ctx, "getCharactersDatabase")
+	defer span.End()
 	return characterList
 }
 
-func (mp *MockCharacters) GetCharacterByID(id string) (*data.Character, error) {
+func (mp *MockCharacters) GetCharacterByID(ctx context.Context, id string) (*data.Character, error) {
+	_, span := otel.Tracer("character-data").Start(ctx, "getCharactersByIDDatabase")
+	defer span.End()
 	index := findIndexByCharacterID(id)
 	if index == -1 {
 		return nil, data.ErrorCharacterNotFound
@@ -39,7 +45,9 @@ func (mp *MockCharacters) GetCharacterByID(id string) (*data.Character, error) {
 	return characterList[index], nil
 }
 
-func (mp *MockCharacters) GetCharactersByUserID(userID string) (data.Characters, error) {
+func (mp *MockCharacters) GetCharactersByUserID(ctx context.Context, userID string) (data.Characters, error) {
+	_, span := otel.Tracer("character-data").Start(ctx, "getCharactersByUserIdDatabase")
+	defer span.End()
 	charactersList := findCharactersListByUserID(userID)
 	if len(charactersList) == 0 {
 		return nil, data.ErrorCharacterNotFound
@@ -47,7 +55,9 @@ func (mp *MockCharacters) GetCharactersByUserID(userID string) (data.Characters,
 	return charactersList, nil
 }
 
-func (mp *MockCharacters) UpdateCharacter(character *data.Character) error {
+func (mp *MockCharacters) UpdateCharacter(ctx context.Context, character *data.Character) error {
+	_, span := otel.Tracer("character-data").Start(ctx, "updateCharactersByIdDatabase")
+	defer span.End()
 	index := findIndexByCharacterID(character.ID)
 	if index == -1 {
 		return data.ErrorCharacterNotFound
@@ -56,8 +66,10 @@ func (mp *MockCharacters) UpdateCharacter(character *data.Character) error {
 	return nil
 }
 
-func (mp *MockCharacters) AddCharacter(character *data.Character) error {
-	if !mp.validateUserExist(character.UserID){
+func (mp *MockCharacters) AddCharacter(ctx context.Context, character *data.Character) error {
+	_, span := otel.Tracer("character-data").Start(ctx, "addCharacterDatabase")
+	defer span.End()
+	if !mp.validateUserExist(character.UserID) {
 		return data.ErrorUserNotFound
 	}
 
@@ -66,7 +78,9 @@ func (mp *MockCharacters) AddCharacter(character *data.Character) error {
 	return nil
 }
 
-func (mp *MockCharacters) DeleteCharacter(id string) error {
+func (mp *MockCharacters) DeleteCharacter(ctx context.Context, id string) error {
+	_, span := otel.Tracer("character-data").Start(ctx, "deleteCharacterByIdDatabase")
+	defer span.End()
 	index := findIndexByCharacterID(id)
 	if index == -1 {
 		return data.ErrorCharacterNotFound
@@ -81,7 +95,7 @@ func (mp *MockCharacters) DeleteCharacter(id string) error {
 // Returns -1 when no character is found
 func findCharactersListByUserID(userID string) data.Characters {
 	var charactersList data.Characters
-	for _ , character := range characterList {
+	for _, character := range characterList {
 		if character.UserID == userID {
 			charactersList = append(charactersList, character)
 		}
