@@ -165,9 +165,13 @@ func (mp *MongoCharacters) UpdateCharacter(ctx context.Context, character *data.
 	update := bson.M{"$set": character}
 
 	// Update a single item in the database with the values in update that match the filter
-	_, err := mp.collection.UpdateOne(ctx, filter, update)
+	updateResult, err := mp.collection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		log.Error(err, "Error updating character.")
+	}
+	if updateResult.MatchedCount != 1 {
+		log.Error(data.ErrorCharacterNotFound, "No matches found for update")
+		return err
 	}
 
 	return err
@@ -211,6 +215,22 @@ func (mp *MongoCharacters) validateUserExist(userID string) bool {
 	getUserByIDPath := data.MicroserviceUserPath + "/users/" + userID
 	resp, err := http.Get(getUserByIDPath)
 	return err == nil && resp.StatusCode == 200
+}
+
+func deleteAllCharactersFromMongoDB() error {
+	uri := mongodbURI()
+
+	// Setting client options
+	opts := options.Client()
+	clientOptions := opts.ApplyURI(uri)
+	client, err := mongo.Connect(context.Background(), clientOptions)
+	if err != nil || client == nil {
+		log.Error(err, "Failed to connect to database. Failing test")
+		return err
+	}
+	collection := client.Database("ubivius").Collection("characters")
+	_, err = collection.DeleteMany(context.Background(), bson.D{{}})
+	return err
 }
 
 func mongodbURI() string {
