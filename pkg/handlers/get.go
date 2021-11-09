@@ -80,12 +80,12 @@ func (characterHandler *CharactersHandler) GetCharactersByUserID(responseWriter 
 
 // GET /characters/alive/user/{user_id}
 // Returns an array of characters alive for a user from the database
-func (characterHandler *CharactersHandler) GetCharactersAliveByUserID(responseWriter http.ResponseWriter, request *http.Request) {
+func (characterHandler *CharactersHandler) GetAliveCharactersByUserID(responseWriter http.ResponseWriter, request *http.Request) {
 	user_id := getUserID(request)
 
 	log.Info("GetCharactersAliveByUserID request", "user_id", user_id)
 
-	characters, err := characterHandler.db.GetCharactersAliveByUserID(request.Context(), user_id)
+	characters, err := characterHandler.db.GetAliveCharactersByUserID(request.Context(), user_id)
 	switch err {
 	case nil:
 		err = json.NewEncoder(responseWriter).Encode(characters)

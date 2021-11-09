@@ -55,10 +55,10 @@ func (mp *MockCharacters) GetCharactersByUserID(ctx context.Context, userID stri
 	return charactersList, nil
 }
 
-func (mp *MockCharacters) GetCharactersAliveByUserID(ctx context.Context, userID string) (data.Characters, error) {
+func (mp *MockCharacters) GetAliveCharactersByUserID(ctx context.Context, userID string) (data.Characters, error) {
 	_, span := otel.Tracer("character-data").Start(ctx, "getCharactersAliveByUserIdDatabase")
 	defer span.End()
-	charactersList := findCharactersAliveListByUserID(userID)
+	charactersList := findAliveCharactersListByUserID(userID)
 	if len(charactersList) == 0 {
 		return nil, data.ErrorCharacterNotFound
 	}
@@ -115,7 +115,7 @@ func findCharactersListByUserID(userID string) data.Characters {
 
 // Returns an array of characters in the database
 // Returns -1 when no character is found
-func findCharactersAliveListByUserID(userID string) data.Characters {
+func findAliveCharactersListByUserID(userID string) data.Characters {
 	var charactersList data.Characters
 	for _ , character := range characterList {
 		if character.UserID == userID && character.Alive {

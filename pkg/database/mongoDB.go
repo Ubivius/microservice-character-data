@@ -154,7 +154,7 @@ func (mp *MongoCharacters) GetCharactersByUserID(ctx context.Context, userID str
 	return characters, err
 }
 
-func (mp *MongoCharacters) GetCharactersAliveByUserID(ctx context.Context, userID string) (data.Characters, error) {
+func (mp *MongoCharacters) GetAliveCharactersByUserID(ctx context.Context, userID string) (data.Characters, error) {
 	// MongoDB search filter
 	filter := bson.D{{Key: "user_id", Value: userID}, {Key: "alive", Value: true}}
 
