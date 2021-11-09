@@ -55,6 +55,16 @@ func (mp *MockCharacters) GetCharactersByUserID(ctx context.Context, userID stri
 	return charactersList, nil
 }
 
+func (mp *MockCharacters) GetCharactersAliveByUserID(ctx context.Context, userID string) (data.Characters, error) {
+	_, span := otel.Tracer("character-data").Start(ctx, "getCharactersAliveByUserIdDatabase")
+	defer span.End()
+	charactersList := findCharactersAliveListByUserID(userID)
+	if len(charactersList) == 0 {
+		return nil, data.ErrorCharacterNotFound
+	}
+	return charactersList, nil
+}
+
 func (mp *MockCharacters) UpdateCharacter(ctx context.Context, character *data.Character) error {
 	_, span := otel.Tracer("character-data").Start(ctx, "updateCharactersByIdDatabase")
 	defer span.End()
@@ -103,6 +113,18 @@ func findCharactersListByUserID(userID string) data.Characters {
 	return charactersList
 }
 
+// Returns an array of characters in the database
+// Returns -1 when no character is found
+func findCharactersAliveListByUserID(userID string) data.Characters {
+	var charactersList data.Characters
+	for _ , character := range characterList {
+		if character.UserID == userID && character.Alive {
+			charactersList = append(charactersList, character)
+		}
+	}
+	return charactersList
+}
+
 // Returns the index of a character in the database
 // Returns -1 when no character is found
 func findIndexByCharacterID(id string) int {
@@ -127,6 +149,7 @@ var characterList = []*data.Character{
 		ID:        "a2181017-5c53-422b-b6bc-036b27c04fc8",
 		UserID:    "a2181017-5c53-422b-b6bc-036b27c04fc8",
 		Name:      "ArcticWalrus",
+		Alive:     true,
 		CreatedOn: time.Now().UTC().String(),
 		UpdatedOn: time.Now().UTC().String(),
 	},
@@ -134,6 +157,7 @@ var characterList = []*data.Character{
 		ID:        "e2382ea2-b5fa-4506-aa9d-d338aa52af44",
 		UserID:    "e2382ea2-b5fa-4506-aa9d-d338aa52af44",
 		Name:      "WinterSword",
+		Alive:     true,
 		CreatedOn: time.Now().UTC().String(),
 		UpdatedOn: time.Now().UTC().String(),
 	},
@@ -141,6 +165,7 @@ var characterList = []*data.Character{
 		ID:        "aaaae510-956e-11eb-a8b3-0242ac130003",
 		UserID:    "e2382ea2-b5fa-4506-aa9d-d338aa52af44",
 		Name:      "ExistingCharacterName",
+		Alive:     false,
 		CreatedOn: time.Now().UTC().String(),
 		UpdatedOn: time.Now().UTC().String(),
 	},

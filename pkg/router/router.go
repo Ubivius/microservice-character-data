@@ -21,6 +21,7 @@ func New(charactersHandler *handlers.CharactersHandler) *mux.Router {
 	getRouter.HandleFunc("/characters", charactersHandler.GetCharacters)
 	getRouter.HandleFunc("/characters/{id:[0-9a-z-]+}", charactersHandler.GetCharacterByID)
 	getRouter.HandleFunc("/characters/user/{user_id:[0-9a-z-]+}", charactersHandler.GetCharactersByUserID)
+	getRouter.HandleFunc("/characters/alive/user/{user_id:[0-9a-z-]+}", charactersHandler.GetCharactersAliveByUserID)
 
 	//Health Check
 	getRouter.HandleFunc("/health/live", charactersHandler.LivenessCheck)
