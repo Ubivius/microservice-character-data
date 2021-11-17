@@ -11,6 +11,7 @@ type CharacterDB interface {
 	GetCharacters(ctx context.Context) data.Characters
 	GetCharacterByID(ctx context.Context, id string) (*data.Character, error)
 	GetCharactersByUserID(ctx context.Context, userID string) (data.Characters, error)
+	GetAliveCharactersByUserID(ctx context.Context, userID string) (data.Characters, error)
 	UpdateCharacter(ctx context.Context, character *data.Character) error
 	AddCharacter(ctx context.Context, character *data.Character) error
 	DeleteCharacter(ctx context.Context, id string) error

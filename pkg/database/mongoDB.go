@@ -125,7 +125,40 @@ func (mp *MongoCharacters) GetCharactersByUserID(ctx context.Context, userID str
 	// MongoDB search filter
 	filter := bson.D{{Key: "user_id", Value: userID}}
 
-	// characters will hold the array of Messages
+	// characters will hold the array of Characters
+	var characters data.Characters
+
+	// Find returns a cursor that must be iterated through
+	cursor, err := mp.collection.Find(ctx, filter)
+	if err != nil {
+		log.Error(err, "Error getting characters by userID from database")
+	}
+
+	// Iterating through cursor
+	for cursor.Next(ctx) {
+		var result data.Character
+		err := cursor.Decode(&result)
+		if err != nil {
+			log.Error(err, "Error decoding characters from database")
+		}
+		characters = append(characters, &result)
+	}
+
+	if err := cursor.Err(); err != nil {
+		log.Error(err, "Error in cursor after iteration")
+	}
+
+	// Close the cursor once finished
+	cursor.Close(ctx)
+
+	return characters, err
+}
+
+func (mp *MongoCharacters) GetAliveCharactersByUserID(ctx context.Context, userID string) (data.Characters, error) {
+	// MongoDB search filter
+	filter := bson.D{{Key: "user_id", Value: userID}, {Key: "alive", Value: true}}
+
+	// characters will hold the array of Characters
 	var characters data.Characters
 
 	// Find returns a cursor that must be iterated through
@@ -183,6 +216,7 @@ func (mp *MongoCharacters) AddCharacter(ctx context.Context, character *data.Cha
 	}
 
 	character.ID = uuid.NewString()
+	character.Alive = true;
 	// Adding time information to new character
 	character.CreatedOn = time.Now().UTC().String()
 	character.UpdatedOn = time.Now().UTC().String()

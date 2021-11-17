@@ -44,7 +44,7 @@ func (characterHandler *CharactersHandler) GetCharacterByID(responseWriter http.
 		http.Error(responseWriter, "Character not found", http.StatusNotFound)
 		return
 	default:
-		log.Error(err, "Error getting achievement")
+		log.Error(err, "Error getting characters")
 		http.Error(responseWriter, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -60,6 +60,32 @@ func (characterHandler *CharactersHandler) GetCharactersByUserID(responseWriter 
 	log.Info("GetCharactersByUserID request", "user_id", user_id)
 
 	characters, err := characterHandler.db.GetCharactersByUserID(request.Context(), user_id)
+	switch err {
+	case nil:
+		err = json.NewEncoder(responseWriter).Encode(characters)
+		if err != nil {
+			log.Error(err, "Error serializing characters")
+		}
+		return
+	case data.ErrorCharacterNotFound:
+		log.Error(err, "Characters not found")
+		http.Error(responseWriter, "Characters not found", http.StatusNotFound)
+		return
+	default:
+		log.Error(err, "Error getting characters")
+		http.Error(responseWriter, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+// GET /characters/alive/user/{user_id}
+// Returns an array of characters alive for a user from the database
+func (characterHandler *CharactersHandler) GetAliveCharactersByUserID(responseWriter http.ResponseWriter, request *http.Request) {
+	user_id := getUserID(request)
+
+	log.Info("GetCharactersAliveByUserID request", "user_id", user_id)
+
+	characters, err := characterHandler.db.GetAliveCharactersByUserID(request.Context(), user_id)
 	switch err {
 	case nil:
 		err = json.NewEncoder(responseWriter).Encode(characters)
