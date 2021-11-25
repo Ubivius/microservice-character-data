@@ -26,8 +26,9 @@ func New(charactersHandler *handlers.CharactersHandler) *mux.Router {
 	getRouter.HandleFunc("/characters/alive/user/{user_id:[0-9a-z-]+}", charactersHandler.GetAliveCharactersByUserID)
 
 	//Health Check
-	getRouter.HandleFunc("/health/live", charactersHandler.LivenessCheck)
-	getRouter.HandleFunc("/health/ready", charactersHandler.ReadinessCheck)
+	healthRouter := router.Methods(http.MethodGet).Subrouter()
+	healthRouter.HandleFunc("/health/live", charactersHandler.LivenessCheck)
+	healthRouter.HandleFunc("/health/ready", charactersHandler.ReadinessCheck)
 
 	// Put router
 	putRouter := router.Methods(http.MethodPut).Subrouter()
