@@ -121,6 +121,76 @@ func TestGetNonExistingCharactersByUserID(t *testing.T) {
 	}
 }
 
+func TestGetOneExistingAliveCharactersByUserID(t *testing.T) {
+	request := httptest.NewRequest(http.MethodGet, "/characters/alive/user/e2382ea2-b5fa-4506-aa9d-d338aa52af44", nil)
+	response := httptest.NewRecorder()
+
+	characterHandler := NewCharactersHandler(newCharacterDB())
+
+	// Mocking gorilla/mux vars
+	vars := map[string]string{
+		"user_id": "e2382ea2-b5fa-4506-aa9d-d338aa52af44",
+	}
+	request = mux.SetURLVars(request, vars)
+
+	characterHandler.GetAliveCharactersByUserID(response, request)
+
+	if response.Code != http.StatusOK {
+		t.Errorf("Expected status code %d but got : %d", http.StatusOK, response.Code)
+	}
+	if !strings.Contains(response.Body.String(), "e2382ea2-b5fa-4506-aa9d-d338aa52af44") {
+		t.Error("Missing elements from expected results")
+	}
+	if strings.Contains(response.Body.String(), "aaaae510-956e-11eb-a8b3-0242ac130003") {
+		t.Error("Unexpected element present in the results")
+	}
+}
+
+func TestGetTwoExistingAliveCharactersByUserID(t *testing.T) {
+	request := httptest.NewRequest(http.MethodGet, "/characters/alive/user/40a2708f-21e4-439c-a019-3dc339d5717d", nil)
+	response := httptest.NewRecorder()
+
+	characterHandler := NewCharactersHandler(newCharacterDB())
+
+	// Mocking gorilla/mux vars
+	vars := map[string]string{
+		"user_id": "40a2708f-21e4-439c-a019-3dc339d5717d",
+	}
+	request = mux.SetURLVars(request, vars)
+
+	characterHandler.GetAliveCharactersByUserID(response, request)
+
+	if response.Code != http.StatusOK {
+		t.Errorf("Expected status code %d but got : %d", http.StatusOK, response.Code)
+	}
+	if !strings.Contains(response.Body.String(), "2a0d39d5-5004-45eb-9aea-32f917956ba4") && 
+	!strings.Contains(response.Body.String(), "91abbbc5-87d6-4ec0-8ccc-67b19b02f831") {
+		t.Error("Missing elements from expected results")
+	}
+}
+
+func TestGetNonExistingAliveCharactersByUserID(t *testing.T) {
+	request := httptest.NewRequest(http.MethodGet, "/characters/alive/user/a2181017-5c53-422b-b6bc-036b27c04fc8", nil)
+	response := httptest.NewRecorder()
+
+	characterHandler := NewCharactersHandler(newCharacterDB())
+
+	// Mocking gorilla/mux vars
+	vars := map[string]string{
+		"user_id": "a2181017-5c53-422b-b6bc-036b27c04fc8",
+	}
+	request = mux.SetURLVars(request, vars)
+
+	characterHandler.GetAliveCharactersByUserID(response, request)
+
+	if response.Code != http.StatusNotFound {
+		t.Errorf("Expected status code %d but got : %d", http.StatusNotFound, response.Code)
+	}
+	if !strings.Contains(response.Body.String(), "Characters not found") {
+		t.Error("Expected response : Characters not found")
+	}
+}
+
 func TestDeleteNonExistantCharacter(t *testing.T) {
 	request := httptest.NewRequest(http.MethodDelete, "/characters/4", nil)
 	response := httptest.NewRecorder()

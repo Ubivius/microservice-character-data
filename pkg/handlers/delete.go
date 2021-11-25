@@ -4,15 +4,18 @@ import (
 	"net/http"
 
 	"github.com/Ubivius/microservice-character-data/pkg/data"
+	"go.opentelemetry.io/otel"
 )
 
 // DELETE /characters/{id}
 // Deletes a character with specified id from the database
 func (characterHandler *CharactersHandler) Delete(responseWriter http.ResponseWriter, request *http.Request) {
+	_, span := otel.Tracer("character-data").Start(request.Context(), "deleteCharacterById")
+	defer span.End()
 	id := getCharacterID(request)
 	log.Info("Delete character by ID request", "id", id)
 
-	err := characterHandler.db.DeleteCharacter(id)
+	err := characterHandler.db.DeleteCharacter(request.Context(), id)
 	switch err {
 	case nil:
 		responseWriter.WriteHeader(http.StatusNoContent)
@@ -25,5 +28,5 @@ func (characterHandler *CharactersHandler) Delete(responseWriter http.ResponseWr
 		log.Error(err, "Error deleting character")
 		http.Error(responseWriter, "Error deleting character", http.StatusInternalServerError)
 		return
-	}	
+	}
 }

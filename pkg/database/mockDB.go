@@ -1,10 +1,12 @@
 package database
 
 import (
+	"context"
 	"time"
 
 	"github.com/Ubivius/microservice-character-data/pkg/data"
 	"github.com/google/uuid"
+	"go.opentelemetry.io/otel"
 )
 
 type MockCharacters struct {
@@ -27,11 +29,15 @@ func (mp *MockCharacters) CloseDB() {
 	log.Info("Mocked DB connection closed")
 }
 
-func (mp *MockCharacters) GetCharacters() data.Characters {
+func (mp *MockCharacters) GetCharacters(ctx context.Context) data.Characters {
+	_, span := otel.Tracer("character-data").Start(ctx, "getCharactersDatabase")
+	defer span.End()
 	return characterList
 }
 
-func (mp *MockCharacters) GetCharacterByID(id string) (*data.Character, error) {
+func (mp *MockCharacters) GetCharacterByID(ctx context.Context, id string) (*data.Character, error) {
+	_, span := otel.Tracer("character-data").Start(ctx, "getCharactersByIDDatabase")
+	defer span.End()
 	index := findIndexByCharacterID(id)
 	if index == -1 {
 		return nil, data.ErrorCharacterNotFound
@@ -39,7 +45,9 @@ func (mp *MockCharacters) GetCharacterByID(id string) (*data.Character, error) {
 	return characterList[index], nil
 }
 
-func (mp *MockCharacters) GetCharactersByUserID(userID string) (data.Characters, error) {
+func (mp *MockCharacters) GetCharactersByUserID(ctx context.Context, userID string) (data.Characters, error) {
+	_, span := otel.Tracer("character-data").Start(ctx, "getCharactersByUserIdDatabase")
+	defer span.End()
 	charactersList := findCharactersListByUserID(userID)
 	if len(charactersList) == 0 {
 		return nil, data.ErrorCharacterNotFound
@@ -47,7 +55,19 @@ func (mp *MockCharacters) GetCharactersByUserID(userID string) (data.Characters,
 	return charactersList, nil
 }
 
-func (mp *MockCharacters) UpdateCharacter(character *data.Character) error {
+func (mp *MockCharacters) GetAliveCharactersByUserID(ctx context.Context, userID string) (data.Characters, error) {
+	_, span := otel.Tracer("character-data").Start(ctx, "getCharactersAliveByUserIdDatabase")
+	defer span.End()
+	charactersList := findAliveCharactersListByUserID(userID)
+	if len(charactersList) == 0 {
+		return nil, data.ErrorCharacterNotFound
+	}
+	return charactersList, nil
+}
+
+func (mp *MockCharacters) UpdateCharacter(ctx context.Context, character *data.Character) error {
+	_, span := otel.Tracer("character-data").Start(ctx, "updateCharactersByIdDatabase")
+	defer span.End()
 	index := findIndexByCharacterID(character.ID)
 	if index == -1 {
 		return data.ErrorCharacterNotFound
@@ -56,8 +76,10 @@ func (mp *MockCharacters) UpdateCharacter(character *data.Character) error {
 	return nil
 }
 
-func (mp *MockCharacters) AddCharacter(character *data.Character) error {
-	if !mp.validateUserExist(character.UserID){
+func (mp *MockCharacters) AddCharacter(ctx context.Context, character *data.Character) error {
+	_, span := otel.Tracer("character-data").Start(ctx, "addCharacterDatabase")
+	defer span.End()
+	if !mp.validateUserExist(character.UserID) {
 		return data.ErrorUserNotFound
 	}
 
@@ -66,7 +88,9 @@ func (mp *MockCharacters) AddCharacter(character *data.Character) error {
 	return nil
 }
 
-func (mp *MockCharacters) DeleteCharacter(id string) error {
+func (mp *MockCharacters) DeleteCharacter(ctx context.Context, id string) error {
+	_, span := otel.Tracer("character-data").Start(ctx, "deleteCharacterByIdDatabase")
+	defer span.End()
 	index := findIndexByCharacterID(id)
 	if index == -1 {
 		return data.ErrorCharacterNotFound
@@ -81,8 +105,20 @@ func (mp *MockCharacters) DeleteCharacter(id string) error {
 // Returns -1 when no character is found
 func findCharactersListByUserID(userID string) data.Characters {
 	var charactersList data.Characters
-	for _ , character := range characterList {
+	for _, character := range characterList {
 		if character.UserID == userID {
+			charactersList = append(charactersList, character)
+		}
+	}
+	return charactersList
+}
+
+// Returns an array of characters in the database
+// Returns -1 when no character is found
+func findAliveCharactersListByUserID(userID string) data.Characters {
+	var charactersList data.Characters
+	for _ , character := range characterList {
+		if character.UserID == userID && character.Alive {
 			charactersList = append(charactersList, character)
 		}
 	}
@@ -113,6 +149,7 @@ var characterList = []*data.Character{
 		ID:        "a2181017-5c53-422b-b6bc-036b27c04fc8",
 		UserID:    "a2181017-5c53-422b-b6bc-036b27c04fc8",
 		Name:      "ArcticWalrus",
+		Alive:     false,
 		CreatedOn: time.Now().UTC().String(),
 		UpdatedOn: time.Now().UTC().String(),
 	},
@@ -120,6 +157,7 @@ var characterList = []*data.Character{
 		ID:        "e2382ea2-b5fa-4506-aa9d-d338aa52af44",
 		UserID:    "e2382ea2-b5fa-4506-aa9d-d338aa52af44",
 		Name:      "WinterSword",
+		Alive:     true,
 		CreatedOn: time.Now().UTC().String(),
 		UpdatedOn: time.Now().UTC().String(),
 	},
@@ -127,6 +165,23 @@ var characterList = []*data.Character{
 		ID:        "aaaae510-956e-11eb-a8b3-0242ac130003",
 		UserID:    "e2382ea2-b5fa-4506-aa9d-d338aa52af44",
 		Name:      "ExistingCharacterName",
+		Alive:     false,
+		CreatedOn: time.Now().UTC().String(),
+		UpdatedOn: time.Now().UTC().String(),
+	},
+	{
+		ID:        "2a0d39d5-5004-45eb-9aea-32f917956ba4",
+		UserID:    "40a2708f-21e4-439c-a019-3dc339d5717d",
+		Name:      "ExistingCharacterName",
+		Alive:     true,
+		CreatedOn: time.Now().UTC().String(),
+		UpdatedOn: time.Now().UTC().String(),
+	},
+	{
+		ID:        "91abbbc5-87d6-4ec0-8ccc-67b19b02f831",
+		UserID:    "40a2708f-21e4-439c-a019-3dc339d5717d",
+		Name:      "ExistingCharacterName",
+		Alive:     true,
 		CreatedOn: time.Now().UTC().String(),
 		UpdatedOn: time.Now().UTC().String(),
 	},

@@ -1,17 +1,20 @@
 package database
 
 import (
+	"context"
+
 	"github.com/Ubivius/microservice-character-data/pkg/data"
 )
 
 // The interface that any kind of database must implement
 type CharacterDB interface {
-	GetCharacters() data.Characters
-	GetCharacterByID(id string) (*data.Character, error)
-	GetCharactersByUserID(userID string) (data.Characters, error)
-	UpdateCharacter(character *data.Character) error
-	AddCharacter(character *data.Character) error
-	DeleteCharacter(id string) error
+	GetCharacters(ctx context.Context) data.Characters
+	GetCharacterByID(ctx context.Context, id string) (*data.Character, error)
+	GetCharactersByUserID(ctx context.Context, userID string) (data.Characters, error)
+	GetAliveCharactersByUserID(ctx context.Context, userID string) (data.Characters, error)
+	UpdateCharacter(ctx context.Context, character *data.Character) error
+	AddCharacter(ctx context.Context, character *data.Character) error
+	DeleteCharacter(ctx context.Context, id string) error
 	validateUserExist(userID string) bool
 	Connect() error
 	PingDB() error
